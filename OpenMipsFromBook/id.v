@@ -319,7 +319,7 @@ always	@	(*)	begin
 								instvalid	<= `InstValid;
 							end
 							`EXE_JALR:begin
-								wreg_o		<=	`WriteDisable;
+								wreg_o		<=	`WriteEnable;
 								aluop_o		<= `EXE_JALR_OP;
 								alusel_o		<= `EXE_RES_JUMP_BRANCH;
 								reg1_read_o	<= 1'b1;
