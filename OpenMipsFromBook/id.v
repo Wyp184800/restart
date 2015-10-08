@@ -485,7 +485,7 @@ always	@	(*)	begin
 				reg1_read_o	<= 1'b1;
 				reg2_read_o	<= 1'b0;
 				instvalid	<= `InstValid;
-				if((reg1_o[31] == 1'b0) || (reg1_o == `ZeroWord))	begin
+				if((reg1_o[31] == 1'b1) || (reg1_o == `ZeroWord))	begin
 					branch_target_address_o	<= pc_plus_4 + imm_sll2_signedext;
 					branch_flag_o	<= `Branch;
 					next_inst_in_delayslot_o	<= `InDelaySlot;
@@ -536,7 +536,7 @@ always	@	(*)	begin
 					end
 					`EXE_BLTZ:begin
 						wreg_o		<= `WriteDisable;
-						aluop_o		<= `EXE_BLTZ_OP;
+						aluop_o		<= `EXE_BGEZAL_OP;
 						alusel_o		<= `EXE_RES_JUMP_BRANCH;
 						reg1_read_o	<= 1'b1;
 						reg2_read_o	<= 1'b0;
@@ -549,7 +549,7 @@ always	@	(*)	begin
 					end
 					`EXE_BLTZAL:begin
 						wreg_o		<= `WriteEnable;
-						aluop_o		<= `EXE_BLTZAL_OP;
+						aluop_o		<= `EXE_BGEZAL_OP;
 						alusel_o		<= `EXE_RES_JUMP_BRANCH;
 						reg1_read_o	<= 1'b1;
 						reg2_read_o	<= 1'b0;
