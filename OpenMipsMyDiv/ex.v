@@ -46,7 +46,7 @@ module ex(
 	output	reg[`DoubleRegBus]	hilo_temp_o,
 	output	reg[1:0]				cnt_o,
 	
-	//来自除法模块的输入
+/*	//来自除法模块的输入
 	input		wire[`DoubleRegBus]	div_result_i,
 	input		wire					div_ready_i,
 	
@@ -55,7 +55,7 @@ module ex(
 	output	reg[`RegBus]		div_opdata2_o,
 	output	reg					div_start_o,
 	output	reg					signed_div_o,
-	
+*/	
 	//branch相关
 	input		wire[`RegBus]		link_address_i,
 	input		wire					is_in_delayslot_i
@@ -80,7 +80,7 @@ wire[`DoubleRegBus]	hilo_temp;					//临时保存乘法结果，宽度64
 reg[`DoubleRegBus]	hilo_temp1;
 reg[`DoubleRegBus]	mulres;						//保存乘法结果，宽度64
 reg				stallreq_for_madd_msub;
-reg				stallreq_for_div;					//由除法运算导致流水线暂停
+//reg				stallreq_for_div;					//由除法运算导致流水线暂停
 
 
 
@@ -310,25 +310,27 @@ end
 
 /*第七段，乘法运算*/
 
-//取得乘法运算的被乘数，如果是有符号乘法且被乘数是负数，那么取补码
+//取得乘法运算的被乘数，如果是有符号乘法且被乘数是负数，那么取补码;除法的被除数
 
 assign opdata1_mult = (((aluop_i == `EXE_MUL_OP) || 
 								(aluop_i == `EXE_MULT_OP) ||
 								(aluop_i	== `EXE_MADD_OP) ||
+								(aluop_i == `EXE_DIV_OP) ||
 								(aluop_i	== `EXE_MSUB_OP)) &&
 								(reg1_i[31])) ? (~reg1_i + 1) : reg1_i;
 								
-//取得乘法运算的乘数，如果是有符号乘法且乘数是负数，那么取补码
+//取得乘法运算的乘数，如果是有符号乘法且乘数是负数，那么取补码；除法的除数
 
 assign opdata2_mult = (((aluop_i == `EXE_MUL_OP) || 
 								(aluop_i == `EXE_MULT_OP) ||
 								(aluop_i	== `EXE_MADD_OP) ||
+								(aluop_i	== `EXE_DIV_OP) ||
 								(aluop_i	== `EXE_MSUB_OP))&&
 								(reg2_i[31])) ? (~reg2_i + 1) : reg2_i;
 								
 //得到临时乘法结果，保存在变量hilo_temp中
 
-assign hilo_temp = opdata1_mult * opdata2_mult;
+assign hilo_temp = (aluop_i == `EXE_DIV_OP) ? {opdata1_mult / opdata2_mult, opdata1_mult % opdata2_mult} : opdata1_mult * opdata2_mult;
 
 //对临时乘法结果进行修正，最终的乘法结果保存在变量mulres中，主要有两点：
 //	如果有符号乘法指令mut,mult，那么需要修正临时乘法结果，如下：
@@ -343,6 +345,7 @@ always	@	(*)	begin
 	if((aluop_i == `EXE_MULT_OP) || 
 		(aluop_i == `EXE_MUL_OP)  ||
 		(aluop_i == `EXE_MADD_OP) ||
+		(aluop_i == `EXE_DIV_OP)  ||
 		(aluop_i	== `EXE_MSUB_OP))	begin
 		if(reg1_i[31] ^ reg2_i[31])	begin
 			mulres <= ~hilo_temp + 1;
@@ -405,50 +408,10 @@ end
 /*第⑨段，暂停流水线，目前只有乘累加，累乘减会导致流水线暂停*/
 
 always	@	(*)	begin
-	stallreq = stallreq_for_madd_msub || stallreq_for_div;
+	stallreq = stallreq_for_madd_msub;
 end
 
 /*第十段，确定对HI,LO寄存器的操作信息*/
-//原书使用if，改为case。
-/*always @ (*) begin
-	if(rst == `RstEnable) begin
-		whilo_o <= `WriteDisable;
-		hi_o <= `ZeroWord;
-		lo_o <= `ZeroWord;	
-	end	else
-	if((aluop_i == `EXE_MSUB_OP) ||
-		(aluop_i	== `EXE_MSUBU_OP))	begin
-			whilo_o	<= `WriteEnable;
-			hi_o		<= hilo_temp1[63:32];
-			lo_o		<= hilo_temp1[31:0];
-	end	else
-	if((aluop_i == `EXE_MADD_OP) ||
-		(aluop_i	== `EXE_MADDU_OP))	begin
-			whilo_o	<= `WriteEnable;
-			hi_o		<= hilo_temp1[63:32];
-			lo_o		<= hilo_temp1[31:0];
-	end 	else 	
-	if((aluop_i == `EXE_MULT_OP) || (aluop_i == `EXE_MULTU_OP)) begin
-		whilo_o <= `WriteEnable;
-		hi_o <= mulres[63:32];
-		lo_o <= mulres[31:0];			
-	end	else 
-	if(aluop_i == `EXE_MTHI_OP) begin
-		whilo_o <= `WriteEnable;
-		hi_o <= reg1_i;
-		lo_o <= LO;
-	end 	else 
-	if(aluop_i == `EXE_MTLO_OP) begin
-		whilo_o <= `WriteEnable;
-		hi_o <= HI;
-		lo_o <= reg1_i;
-	end 	else 	begin
-		whilo_o <= `WriteDisable;
-		hi_o <= `ZeroWord;
-		lo_o <= `ZeroWord;
-	end				
-end			
-*/
 
 always @ (*) begin
 	if(rst == `RstEnable) begin
@@ -467,7 +430,7 @@ always @ (*) begin
 				hi_o		<= hilo_temp1[63:32];
 				lo_o		<= hilo_temp1[31:0];
 			end
-			`EXE_MULT_OP,`EXE_MULTU_OP:begin
+			`EXE_MULT_OP,`EXE_MULTU_OP,`EXE_DIVU_OP,`EXE_DIV_OP:begin
 				whilo_o <= `WriteEnable;
 				hi_o <= mulres[63:32];
 				lo_o <= mulres[31:0];	
@@ -482,80 +445,10 @@ always @ (*) begin
 				hi_o <= HI;
 				lo_o <= reg1_i;
 			end
-			`EXE_DIV_OP,`EXE_DIVU_OP:begin
-				whilo_o	<= `WriteEnable;
-				hi_o	<= div_result_i[63:32];
-				lo_o	<= div_result_i[31:0];
-			end
 			default:begin
 				whilo_o <= `WriteDisable;
 				hi_o <= `ZeroWord;
 				lo_o <= `ZeroWord;
-			end
-		endcase
-	end
-end
-
-/*第十一段，输出DIV模块的控制信息，获取DIV模块给出的结果*/
-always	@	(*)	begin
-	if(rst == `RstEnable)	begin
-		stallreq_for_div	<= `NoStop;
-		div_opdata1_o		<= `ZeroWord;
-		div_opdata2_o		<= `ZeroWord;
-		div_start_o			<= `DivStop;
-		signed_div_o		<= 1'b0;
-	end	else	begin
-		stallreq_for_div	<= `NoStop;
-		div_opdata1_o		<= `ZeroWord;
-		div_opdata2_o		<= `ZeroWord;
-		div_start_o			<= `DivStop;
-		signed_div_o		<= 1'b0;
-		case(aluop_i)
-			`EXE_DIV_OP:begin
-				if(div_ready_i == `DivResultNotReady)	begin
-					div_opdata1_o	<= reg1_i;
-					div_opdata2_o	<= reg2_i;
-					div_start_o		<= `DivStart;
-					signed_div_o	<= 1'b1;
-					stallreq_for_div	<= `Stop;
-				end	else
-				if(div_ready_i == `DivResultReady)	begin
-					div_opdata1_o	<= reg1_i;
-					div_opdata2_o	<= reg2_i;
-					div_start_o		<= `DivStop;
-					signed_div_o	<= 1'b1;
-					stallreq_for_div	<= `NoStop;
-				end	else	begin
-					div_opdata1_o	<= `ZeroWord;
-					div_opdata2_o	<= `ZeroWord;
-					div_start_o		<= `DivStop;
-					signed_div_o	<= 1'b0;
-					stallreq_for_div	<= `NoStop;
-				end
-			end
-			`EXE_DIVU_OP:begin
-				if(div_ready_i == `DivResultNotReady)	begin
-					div_opdata1_o	<= reg1_i;
-					div_opdata2_o	<= reg2_i;
-					div_start_o		<= `DivStart;
-					signed_div_o	<= 1'b0;
-					stallreq_for_div	<= `Stop;
-				end	else
-				if(div_ready_i == `DivResultReady)	begin
-					div_opdata1_o	<= reg1_i;
-					div_opdata2_o	<= reg2_i;
-					div_start_o		<= `DivStop;
-					signed_div_o	<= 1'b0;
-					stallreq_for_div	<= `NoStop;
-				end	else	begin
-					div_opdata1_o	<= `ZeroWord;
-					div_opdata2_o	<= `ZeroWord;
-					div_start_o		<= `DivStop;
-					signed_div_o	<= 1'b0;
-					stallreq_for_div	<= `NoStop;
-				end
-			end
-			default:begin
 			end
 		endcase
 	end

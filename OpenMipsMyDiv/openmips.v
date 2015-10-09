@@ -85,14 +85,7 @@ wire[1:0] 				cnt_o;
 wire[`DoubleRegBus] 	hilo_temp_i;
 wire[1:0] 				cnt_i;
 
-wire[`DoubleRegBus] 	div_result;
-wire 						div_ready;
-wire[`RegBus] 			div_opdata1;
-wire[`RegBus] 			div_opdata2;
-wire 						div_start;
-wire 						div_annul;
-wire 						signed_div;
-
+//跳转与分支指令
 wire 						is_in_delayslot_i;
 wire 						is_in_delayslot_o;
 wire 						next_inst_in_delayslot_o;
@@ -204,8 +197,7 @@ ex			ex0(
 	.mem_lo_i(mem_lo_o),				.mem_whilo_i(mem_whilo_o),
 	
 	.hilo_temp_i(hilo_temp_i),		.cnt_i(cnt_i),
-	.div_result_i(div_result),		.div_ready_i(div_ready), 
-
+	
 	.link_address_i(ex_link_address_i),
 	.is_in_delayslot_i(ex_is_in_delayslot_i),
 	
@@ -215,8 +207,7 @@ ex			ex0(
 	.lo_o(ex_lo_o),					.whilo_o(ex_whilo_o),
 	
 	.hilo_temp_o(hilo_temp_o),		.cnt_o(cnt_o),
-	.div_opdata1_o(div_opdata1),	.div_opdata2_o(div_opdata2),
-	.div_start_o(div_start),		.signed_div_o(signed_div),	
+	
 	.stallreq(stallreq_from_ex)
 );
 
@@ -294,14 +285,4 @@ ctrl	ctr0(
 	.stall(stall)
 );
 
-//div模块例化
-div	div0(
-	.clk(clk),							.rst(rst),
-	
-	.signed_div_i(signed_div),		.opdata1_i(div_opdata1),
-	.opdata2_i(div_opdata2),		.start_i(div_start),
-	.annul_i(1'b0),					
-	
-	.result_o(div_result),			.ready_o(div_ready)
-);
 endmodule
