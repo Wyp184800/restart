@@ -10,11 +10,15 @@ module ex(
 	input		wire[`RegBus]		reg2_i,
 	input		wire[`RegAddrBus]	wd_i,
 	input		wire					wreg_i,
+	input		wire[`RegBus]		inst_i,
 	
 	//执行的结果	
 	output	reg[`RegAddrBus]	wd_o,
 	output	reg					wreg_o,
 	output	reg[`RegBus]		wdata_o,
+	output	wire[`Aluop_i]		aluop_o,
+	output	wire[`RegBus]		mem_addr_o,
+	output	wire[`RegBus]		reg2_o
 	
 	//HILO模块给出的寄存器值
 	input		wire[`RegBus]		hi_i,
@@ -82,7 +86,14 @@ reg[`DoubleRegBus]	mulres;						//保存乘法结果，宽度64
 reg				stallreq_for_madd_msub;
 reg				stallreq_for_div;					//由除法运算导致流水线暂停
 
+//aluop_o会传递到访存阶段，解释将利用其确定加载，存储类型
+assign	aluop_o = aluop_i;
 
+//mem_addr_o会传递到访存阶段，是加载，存储指令对应的存储器地址，此处的reg1_i就是指令中地址为base的通用寄存器的值，inst_i[15:0]就是指令中的offset
+assign	mem_addr_o = reg1_i + {{16{inst_i[15]}}, inst_i[15:0]};
+
+//reg2_i是存储指令要存储的数据，或者lwl,lwr指令要加载到目的寄存器的原始值，通过reg2_o传递到访存阶段
+assign	reg2_o = reg2_i;
 
 /*第一段，根据aluop_i指示的运算子类型进行运算*/
 
