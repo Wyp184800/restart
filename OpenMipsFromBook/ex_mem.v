@@ -21,6 +21,9 @@ module ex_mem(
 	input		wire[`RegBus]		ex_hi,
 	input		wire[`RegBus]		ex_lo,
 	input		wire					ex_whilo,
+	input		wire[`AluOpBus]	ex_aluop,
+	input		wire[`RegBus]		ex_mem_addr,
+	input		wire[`RegBus]		ex_reg2,
 	
 	//送到访存阶段的信息
 	output	reg[`RegAddrBus]	mem_wd,
@@ -28,7 +31,10 @@ module ex_mem(
 	output	reg[`RegBus]		mem_wdata,
 	output	reg[`RegBus]		mem_hi,
 	output	reg[`RegBus]		mem_lo,
-	output	reg					mem_whilo
+	output	reg					mem_whilo,
+	output	reg[`AluOpBus]		mem_aluop,
+	output	reg[`RegBus]		mem_mem_addr,
+	output	reg[`RegBus]		mem_reg2
 );
 
 //在流水线执行阶段暂停时，将输入信号hilo_i通过hilo_o送出，cnt_i通过cnt_o送出，其余时刻，hilo_o和cnt_o为0
@@ -63,6 +69,9 @@ always	@	(posedge	clk)	begin
 		mem_whilo	<= ex_whilo;
 		hilo_o		<= {`ZeroWord, `ZeroWord};
 		cnt_o			<= 2'b00;
+		mem_aluop	<= ex_aluop;
+		mem_mem_addr	<= ex_mem_addr;
+		mem_reg2		<= ex_reg2;
 	end	else	begin
 		hilo_o		<= hilo_i;
 		cnt_o			<= cnt_i;
