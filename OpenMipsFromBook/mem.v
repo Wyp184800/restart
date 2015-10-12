@@ -67,7 +67,7 @@ always	@	(*)	begin
 			`EXE_LB_OP:begin
 				mem_addr_o	<= mem_addr_i;
 				mem_we		<= `WriteDisable;
-				mem_ce_o		<= `ChipDisable;
+				mem_ce_o		<= `ChipEnable;
 				case(mem_addr_i[1:0])
 					2'b00:begin
 						wdata_o	<= {{24{mem_data_i[31]}}, mem_data_i[31:24]};
@@ -93,7 +93,7 @@ always	@	(*)	begin
 			`EXE_LBU_OP:begin
 				mem_addr_o	<= mem_addr_i;
 				mem_we		<= `WriteDisable;
-				mem_ce_o		<= `ChipDisable;
+				mem_ce_o		<= `ChipEnable;
 				case(mem_addr_i[1:0])
 					2'b00:begin
 						wdata_o	<= {{24{1'b0}}, mem_data_i[31:24]};
@@ -146,6 +146,36 @@ always	@	(*)	begin
 					2'b10:begin
 						wdata_o	<= {{16{1'b0}}, mem_data_i[15:0]};
 						mem_sel_o	<= 4'b0011;
+					end
+					default:begin
+						wdata_o	<= `ZeroWord;
+					end
+				endcase
+			end
+			`EXE_LW_OP:begin
+				mem_addr_o	<= mem_addr_i;
+				mem_we		<= `WriteDisable;
+				wdata_o		<= mem_data_i;
+				mem_sel_o	<= 4'b1111;
+				mem_ce_o		<= `ChipEnable;
+			end
+			`EXE_LWL_OP:begin
+				mem_addr_o	<= {mem_addr_i[31:2], 2'b00};
+				mem_we		<= `WriteDisable;
+				mem_sel_o	<= 4'b1111;
+				mem_ce_o		<= `ChipEnable;
+				case(mem_addr_i[1:0])
+					2'b00:begin
+						wdata_o	<= mem_data_i[31:0];
+					end
+					2'b01:begin
+						wdata_o	<= {mem_data_i[23:0], reg2_i[7:0]};
+					end
+					2'b10:begin
+						wdata_o	<= {mem_addr_i[15:0], reg2_i[15:0]};
+					end
+					2'b11:begin
+						wdata_o	<= {mem_data_i[7:0], reg2_i[23:0]};
 					end
 					default:begin
 						wdata_o	<= `ZeroWord;
