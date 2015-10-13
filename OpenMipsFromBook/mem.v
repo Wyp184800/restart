@@ -182,6 +182,128 @@ always	@	(*)	begin
 					end
 				endcase
 			end
+			`EXE_LWR_OP:begin
+				mem_addr_o	<= {mem_addr_i[31:2], 2'b00};
+				mem_we		<= `WriteDisable;
+				mem_sel_o	<= 4'b1111;
+				mem_ce_o	<= `ChipEnable;
+				case(mem_addr_i[1:0])
+					2'b00:begin
+						wdata_o	<= {mem_data_i[31:8], reg2_i[31:24]};
+					end
+					2'b01:begin
+						wdata_o	<= {mem_data_i[31:16], reg2_i[31:16]};
+					end
+					2'b10:begin
+						wdata_o	<= {mem_data_i[31：:24], reg2_i[31:8]};
+					end
+					2'b11:begin
+						wdata_o	<= mem_data_i[31:0];
+					end
+					default:begin
+						wdata_o	<= `ZeroWord;
+					end
+				endcase
+			end
+			`EXE_SB_OP:begin
+				mem_addr_o	<= mem_addr_i;
+				mem_we		<= `WriteEnable;
+				mem_data_o	<= {reg2_i[7:0], reg2_i[7:0], reg2_i[7:0], reg2_i[7:0]};
+				mem_ce_o		<= `ChipEnable;
+				case(mem_addr_i[1:0])
+					2'b00:begin
+						mem_sel_o	<= 4'b1000;
+					end
+					2'b01:begin	
+						mem_sel_o	<= 4'b0100;
+					end
+					2'b10:begin	
+						mem_sel_o	<= 4'b0010;
+					end
+					2'b11:begin	
+						mem_sel_o	<= 4'b0001;
+					end
+					default:begin
+						mem_sel_o	<= 4'b0000;
+					end
+				endcase
+			end
+			`EXE_SH_OP:begin	
+				mem_addr_o	<= mem_addr_i;
+				mem_we		<= `WriteEnable;
+				mem_data_o	<= {reg2_i[15:0], reg2_i[15:0]};
+				mem_ce_o		<= `ChipEnable;
+				case(mem_addr_i[1:0])
+					2'b00:begin
+						mem_sel_o	<= 4'b1100;
+					end
+					2'b10:begin
+						mem_sel_o	<= 4'b0011;
+					end
+					default:begin
+						mem_sel_o	<= 4'b0000;
+					end
+				endcase
+			end
+			`EXE_SW_OP:begin
+				mem_addr_o	<= mem_addr_i;
+				mem_we		<= `WriteEnable;
+				mem_data_o	<= reg2_i;
+				mem_sel_o	<= 4'b1111;
+				mem_ce_o		<= `ChipEnable;
+			end
+			`EXE_SWL_OP:begin
+				mem_addr_o	<= {mem_addr_i[31:2], 2'b00};
+				mem_we		<= `WriteEnable;
+				mem_ce_o		<= `ChipEnable;
+				case(mem_addr_i[1:0])
+					2'b00:begin
+						mem_sel_o	<= 4'b1111;
+						mem_data_o	<= reg2_i;
+					end
+					2'b01:begin
+						mem_sel_o	<= 4'0111;
+						mem_data_o	<= {zero32[7:0], reg2_i[31:8]};
+					end
+					2'b10:begin
+						mem_sel_o	<= 4'b0011;
+						mem_data_o	<= {zero32[15:0], reg2_i[31:16]};
+					end
+					2'b11:begin
+						mem_sel_o	<= 4'b0001;
+						mem_data_o	<= {zero32[23:0], reg2_i[31:24]};
+					end
+					default:begin
+						mem_sel_o	<= 4'b0000;
+					end
+				endcase
+			end
+			`EXE_SWR_OP:begin
+				mem_addr_o	<= {mem_addr_i[31:2], 2'b00};
+				mem_we		<= `WriteEnable;
+				mem_ce_o		<= `ChipEnable;
+				case(mem_addr_i[1:0])
+					2'b00:begin
+						mem_sel_o	<= 4'b1000;
+						mem_data_o	<= {reg2_i[7:0], zero32[23:0]};
+					end
+					2'b01:begin
+						mem_sel_o	<= 4'b1100;
+						mem_data_o	<= {reg2_i[15:0], zero32[15:0]};
+					end
+					2'b10:begin
+						mem_sel_o	<= 4'b1110;
+						mem_data_o	<= {reg2_i[23:0], zero32[7:0]};
+					end
+					2'b11:begin
+						mem_sel_o	<= 4'b1111;
+						mem_data_o	<= reg2_i[31:0];
+					end
+				endcase
+			end
+			default:begin
+			end
+		endcase
 	end
 end
 
