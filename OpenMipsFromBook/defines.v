@@ -224,3 +224,10 @@
 `define DivResultNotReady 1'b0
 `define DivStart 1'b1
 `define DivStop 1'b0
+
+//数据RAM
+`define	DataAddrBus		31:0
+`define	DataBus			31:0
+`define	DataMemNum		131071
+`define	DataMemNumLog2	17
+`define	ByteWidth		7:0
