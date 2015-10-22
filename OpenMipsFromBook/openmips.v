@@ -14,7 +14,7 @@ module openmips(
 	output	wire[`RegBus]	ram_data_o,
 	output	wire				ram_we_o,
 	output	wire[3:0]		ram_sel_o,
-	output	wire				ram_ce_o
+	output	wire[3:0]		ram_ce_o
 );
 
 //连接if_id与id模块的变量
@@ -31,6 +31,7 @@ wire						id_wreg_o;
 wire[`RegAddrBus]		id_wd_o;
 wire 						id_is_in_delayslot_o;
 wire[`RegBus] 			id_link_address_o;	
+wire[`RegBus]			id_inst_o;
 
 //连接id_ex与ex模块的变量
 wire[`AluOpBus]		ex_aluop_i;
@@ -41,6 +42,7 @@ wire						ex_wreg_i;
 wire[`RegAddrBus]		ex_wd_i;
 wire 						ex_is_in_delayslot_i;	
 wire[`RegBus] 			ex_link_address_i;	
+wire[`RegBus]			ex_inst_i;
 
 //连接ex与ex_mem模块的变量
 wire						ex_wreg_o;
@@ -49,6 +51,10 @@ wire[`RegBus]			ex_wdata_o;
 wire[`RegBus]			ex_hi_o;
 wire[`RegBus] 			ex_lo_o;
 wire 						ex_whilo_o;
+wire[`AluOpBus] 		ex_aluop_o;
+wire[`RegBus] 			ex_mem_addr_o;
+wire[`RegBus] 			ex_reg1_o;
+wire[`RegBus] 			ex_reg2_o;	
 
 //连接ex_mem与mem模块的变量
 wire						mem_wreg_i;
@@ -56,7 +62,11 @@ wire[`RegAddrBus]		mem_wd_i;
 wire[`RegBus]			mem_wdata_i;
 wire[`RegBus] 			mem_hi_i;
 wire[`RegBus] 			mem_lo_i;
-wire 						mem_whilo_i;		
+wire 						mem_whilo_i;	
+wire[`AluOpBus] 		mem_aluop_i;
+wire[`RegBus] 			mem_mem_addr_i;
+wire[`RegBus] 			mem_reg1_i;
+wire[`RegBus] 			mem_reg2_i;		
 
 //连接mem与mem_wb模块的变量
 wire						mem_wreg_o;
@@ -65,10 +75,6 @@ wire[`RegBus]			mem_wdata_o;
 wire[`RegBus] 			mem_hi_o;
 wire[`RegBus] 			mem_lo_o;
 wire	 					mem_whilo_o;
-wire[`AluOpBus] mem_aluop_i;
-wire[`RegBus] mem_mem_addr_i;
-wire[`RegBus] mem_reg1_i;
-wire[`RegBus] mem_reg2_i;		
 
 //连接mem_wb与wb模块的变量
 wire						wb_wreg_i;
@@ -159,6 +165,7 @@ id			id0(
 	.aluop_o(id_aluop_o),			.alusel_o(id_alusel_o),
 	.reg1_o(id_reg1_o),				.reg2_o(id_reg2_o),
 	.wd_o(id_wd_o),					.wreg_o(id_wreg_o),
+	.inst_o(id_inst_o),
 	.next_inst_in_delayslot_o(next_inst_in_delayslot_o),	
 	.branch_flag_o(id_branch_flag_o),
 	.branch_target_address_o(branch_target_address),       
@@ -188,6 +195,7 @@ id_ex		id_ex0(
 	.id_aluop(id_aluop_o),			.id_alusel(id_alusel_o),
 	.id_reg1(id_reg1_o),				.id_reg2(id_reg2_o),
 	.id_wd(id_wd_o),					.id_wreg(id_wreg_o),
+	.id_inst(id_inst_o),	
 	.id_link_address(id_link_address_o),
 	.id_is_in_delayslot(id_is_in_delayslot_o),
 	.next_inst_in_delayslot_i(next_inst_in_delayslot_o),		
@@ -196,6 +204,7 @@ id_ex		id_ex0(
 	.ex_aluop(ex_aluop_i),			.ex_alusel(ex_alusel_i),
 	.ex_reg1(ex_reg1_i),				.ex_reg2(ex_reg2_i),
 	.ex_wd(ex_wd_i),					.ex_wreg(ex_wreg_i),
+	.ex_inst(ex_inst_i),
 	.ex_link_address(ex_link_address_i),
   	.ex_is_in_delayslot(ex_is_in_delayslot_i),
 	.is_in_delayslot_o(is_in_delayslot_i)	
@@ -210,6 +219,7 @@ ex			ex0(
 	.reg1_i(ex_reg1_i),				.reg2_i(ex_reg2_i),
 	.wd_i(ex_wd_i),					.wreg_i(ex_wreg_i),
 	.hi_i(hi),							.lo_i(lo),
+	.inst_i(ex_inst_i),
 	
 	.wb_hi_i(wb_hi_i),				.wb_lo_i(wb_lo_i),
 	.wb_whilo_i(wb_whilo_i),		.mem_hi_i(mem_hi_o),
@@ -229,6 +239,10 @@ ex			ex0(
 	.hilo_temp_o(hilo_temp_o),		.cnt_o(cnt_o),
 	.div_opdata1_o(div_opdata1),	.div_opdata2_o(div_opdata2),
 	.div_start_o(div_start),		.signed_div_o(signed_div),	
+	
+	.aluop_o(ex_aluop_o),			.mem_addr_o(ex_mem_addr_o),
+	.reg2_o(ex_reg2_o),
+	
 	.stallreq(stallreq_from_ex)
 );
 
@@ -241,6 +255,9 @@ ex_mem	ex_mem0(
 	.ex_wd(ex_wd_o),					.ex_wreg(ex_wreg_o),
 	.ex_wdata(ex_wdata_o),			.ex_hi(ex_hi_o),
 	.ex_lo(ex_lo_o),					.ex_whilo(ex_whilo_o),	
+	
+	.ex_aluop(ex_aluop_o),			.ex_mem_addr(ex_mem_addr_o),
+	.ex_reg2(ex_reg2_o),	
 	
 	.hilo_i(hilo_temp_o),			.cnt_i(cnt_o),
 	
@@ -255,7 +272,7 @@ ex_mem	ex_mem0(
 );
 
 //mem模块例化
-mem		mem0(
+/*mem		mem0(
 	.rst(rst),
 	
 	//来自ex_mem模块的信息
@@ -277,7 +294,42 @@ mem		mem0(
 	.mem_addr_o(ram_addr_o),		.mem_we_o(ram_we_o),
 	.mem_sel_o(ram_sel_o),			.mem_data_o(ram_data_o),
 	.mem_ce_o(ram_ce_o)
-);
+);*/
+
+	mem mem0(
+		.rst(rst),
+	
+		//���EX/MEMģ������Ϣ	
+		.wd_i(mem_wd_i),
+		.wreg_i(mem_wreg_i),
+		.wdata_i(mem_wdata_i),
+		.hi_i(mem_hi_i),
+		.lo_i(mem_lo_i),
+		.whilo_i(mem_whilo_i),		
+
+  	.aluop_i(mem_aluop_i),
+		.mem_addr_i(mem_mem_addr_i),
+		.reg2_i(mem_reg2_i),
+	
+		//���memory����Ϣ
+		.mem_data_i(ram_data_i),
+	  
+		//�͵�MEM/WBģ������Ϣ
+		.wd_o(mem_wd_o),
+		.wreg_o(mem_wreg_o),
+		.wdata_o(mem_wdata_o),
+		.hi_o(mem_hi_o),
+		.lo_o(mem_lo_o),
+		.whilo_o(mem_whilo_o),
+		
+		//�͵�memory����Ϣ
+		.mem_addr_o(ram_addr_o),
+		.mem_we_o(ram_we_o),
+		.mem_sel_o(ram_sel_o),
+		.mem_data_o(ram_data_o),
+		.mem_ce_o(ram_ce_o)		
+	);
+
 
 //mem_wb模块例化
 mem_wb	mem_wb0(
