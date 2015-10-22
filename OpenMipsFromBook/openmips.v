@@ -8,7 +8,7 @@ module openmips(
 	output	wire[`RegBus]	rom_addr_o,
 	output	wire				rom_ce_o,
 	
-	//新增接口，连接数据存储器RAM
+	//连接数据存储器RAM
 	input		wire[`RegBus]	ram_data_i,
 	output	wire[`RegBus]	ram_addr_o,
 	output	wire[`RegBus]	ram_data_o,
@@ -65,6 +65,10 @@ wire[`RegBus]			mem_wdata_o;
 wire[`RegBus] 			mem_hi_o;
 wire[`RegBus] 			mem_lo_o;
 wire	 					mem_whilo_o;
+wire[`AluOpBus] mem_aluop_i;
+wire[`RegBus] mem_mem_addr_i;
+wire[`RegBus] mem_reg1_i;
+wire[`RegBus] mem_reg2_i;		
 
 //连接mem_wb与wb模块的变量
 wire						wb_wreg_i;
@@ -243,7 +247,9 @@ ex_mem	ex_mem0(
 	//送到mem阶段的信息
 	.mem_wd(mem_wd_i),				.mem_wreg(mem_wreg_i),
 	.mem_wdata(mem_wdata_i),		.mem_hi(mem_hi_i),
-	.mem_lo(mem_lo_i),				.mem_whilo(mem_whilo_i),		
+	.mem_lo(mem_lo_i),				.mem_whilo(mem_whilo_i),	
+	.mem_aluop(mem_aluop_i),		.mem_mem_addr(mem_mem_addr_i),
+	.mem_reg2(mem_reg2_i),	
 	
 	.hilo_o(hilo_temp_i),			.cnt_o(cnt_i)
 );
@@ -256,6 +262,8 @@ mem		mem0(
 	.wd_i(mem_wd_i),					.wreg_i(mem_wreg_i),
 	.wdata_i(mem_wdata_i),			.hi_i(mem_hi_i),
 	.lo_i(mem_lo_i),					.whilo_i(mem_whilo_i),	
+	.aluop_i(mem_aluop_i),			.mem_addr_i(mem_mem_addr_i),
+	.reg2_i(mem_reg2_i),
 	
 	//送到mem_wb模块的信息
 	.wd_o(mem_wd_o),					.wreg_o(mem_wreg_o),

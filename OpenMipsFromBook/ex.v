@@ -16,9 +16,9 @@ module ex(
 	output	reg[`RegAddrBus]	wd_o,
 	output	reg					wreg_o,
 	output	reg[`RegBus]		wdata_o,
-	output	wire[`Aluop_i]		aluop_o,
+	output	wire[`AluOpBus]	aluop_o,
 	output	wire[`RegBus]		mem_addr_o,
-	output	wire[`RegBus]		reg2_o
+	output	wire[`RegBus]		reg2_o,
 	
 	//HILO模块给出的寄存器值
 	input		wire[`RegBus]		hi_i,

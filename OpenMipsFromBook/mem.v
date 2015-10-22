@@ -19,7 +19,7 @@ module mem(
 	
 	//送到外部RAM的信息
 	output	reg[`RegBus]		mem_addr_o,
-	output	reg					mem_we_o,
+	output	wire					mem_we_o,
 	output	reg[3:0]				mem_sel_o,
 	output	reg[`RegBus]		mem_data_o,
 	output	reg					mem_ce_o,
@@ -195,7 +195,7 @@ always	@	(*)	begin
 						wdata_o	<= {mem_data_i[31:16], reg2_i[31:16]};
 					end
 					2'b10:begin
-						wdata_o	<= {mem_data_i[31：:24], reg2_i[31:8]};
+						wdata_o	<= {mem_data_i[31:24], reg2_i[31:8]};
 					end
 					2'b11:begin
 						wdata_o	<= mem_data_i[31:0];
@@ -262,7 +262,7 @@ always	@	(*)	begin
 						mem_data_o	<= reg2_i;
 					end
 					2'b01:begin
-						mem_sel_o	<= 4'0111;
+						mem_sel_o	<= 4'b0111;
 						mem_data_o	<= {zero32[7:0], reg2_i[31:8]};
 					end
 					2'b10:begin
