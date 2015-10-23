@@ -272,34 +272,10 @@ ex_mem	ex_mem0(
 );
 
 //mem模块例化
-/*mem		mem0(
-	.rst(rst),
-	
-	//来自ex_mem模块的信息
-	.wd_i(mem_wd_i),					.wreg_i(mem_wreg_i),
-	.wdata_i(mem_wdata_i),			.hi_i(mem_hi_i),
-	.lo_i(mem_lo_i),					.whilo_i(mem_whilo_i),	
-	.aluop_i(mem_aluop_i),			.mem_addr_i(mem_mem_addr_i),
-	.reg2_i(mem_reg2_i),
-	
-	//送到mem_wb模块的信息
-	.wd_o(mem_wd_o),					.wreg_o(mem_wreg_o),
-	.wdata_o(mem_wdata_o),			.hi_o(mem_hi_o),
-	.lo_o(mem_lo_o),					.whilo_o(mem_whilo_o),
-	
-	//来自Dcache的信息
-	.mem_data_i(ram_data_i),
-	
-	//送到Dcache的信息
-	.mem_addr_o(ram_addr_o),		.mem_we_o(ram_we_o),
-	.mem_sel_o(ram_sel_o),			.mem_data_o(ram_data_o),
-	.mem_ce_o(ram_ce_o)
-);*/
-
-	mem mem0(
+mem mem0(
 		.rst(rst),
 	
-		//���EX/MEMģ������Ϣ	
+		//来自ex_mem模块的信息
 		.wd_i(mem_wd_i),
 		.wreg_i(mem_wreg_i),
 		.wdata_i(mem_wdata_i),
@@ -307,14 +283,14 @@ ex_mem	ex_mem0(
 		.lo_i(mem_lo_i),
 		.whilo_i(mem_whilo_i),		
 
-  	.aluop_i(mem_aluop_i),
+		.aluop_i(mem_aluop_i),
 		.mem_addr_i(mem_mem_addr_i),
 		.reg2_i(mem_reg2_i),
 	
-		//���memory����Ϣ
+		//来自Dcache的信息
 		.mem_data_i(ram_data_i),
 	  
-		//�͵�MEM/WBģ������Ϣ
+		//送到mem_wb模块的信息
 		.wd_o(mem_wd_o),
 		.wreg_o(mem_wreg_o),
 		.wdata_o(mem_wdata_o),
@@ -322,14 +298,13 @@ ex_mem	ex_mem0(
 		.lo_o(mem_lo_o),
 		.whilo_o(mem_whilo_o),
 		
-		//�͵�memory����Ϣ
+		//送到Dcache的信息
 		.mem_addr_o(ram_addr_o),
 		.mem_we_o(ram_we_o),
 		.mem_sel_o(ram_sel_o),
 		.mem_data_o(ram_data_o),
 		.mem_ce_o(ram_ce_o)		
-	);
-
+);
 
 //mem_wb模块例化
 mem_wb	mem_wb0(
