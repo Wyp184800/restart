@@ -14,7 +14,7 @@ module openmips(
 	output	wire[`RegBus]	ram_data_o,
 	output	wire				ram_we_o,
 	output	wire[3:0]		ram_sel_o,
-	output	wire[3:0]		ram_ce_o
+	output	wire				ram_ce_o
 );
 
 //连接if_id与id模块的变量
@@ -147,6 +147,7 @@ if_id		if_id0(
 //id模块例化
 id			id0(
 	.rst(rst),	.pc_i(id_pc_i),	.inst_i(id_inst_i),
+	.ex_aluop_i(ex_aluop_o),		
 	
 	//来自Regfile模块的输入
 	.reg1_data_i(reg1_data),		.reg2_data_i(reg2_data),

@@ -420,46 +420,6 @@ always	@	(*)	begin
 end
 
 /*第十段，确定对HI,LO寄存器的操作信息*/
-//原书使用if，改为case。
-/*always @ (*) begin
-	if(rst == `RstEnable) begin
-		whilo_o <= `WriteDisable;
-		hi_o <= `ZeroWord;
-		lo_o <= `ZeroWord;	
-	end	else
-	if((aluop_i == `EXE_MSUB_OP) ||
-		(aluop_i	== `EXE_MSUBU_OP))	begin
-			whilo_o	<= `WriteEnable;
-			hi_o		<= hilo_temp1[63:32];
-			lo_o		<= hilo_temp1[31:0];
-	end	else
-	if((aluop_i == `EXE_MADD_OP) ||
-		(aluop_i	== `EXE_MADDU_OP))	begin
-			whilo_o	<= `WriteEnable;
-			hi_o		<= hilo_temp1[63:32];
-			lo_o		<= hilo_temp1[31:0];
-	end 	else 	
-	if((aluop_i == `EXE_MULT_OP) || (aluop_i == `EXE_MULTU_OP)) begin
-		whilo_o <= `WriteEnable;
-		hi_o <= mulres[63:32];
-		lo_o <= mulres[31:0];			
-	end	else 
-	if(aluop_i == `EXE_MTHI_OP) begin
-		whilo_o <= `WriteEnable;
-		hi_o <= reg1_i;
-		lo_o <= LO;
-	end 	else 
-	if(aluop_i == `EXE_MTLO_OP) begin
-		whilo_o <= `WriteEnable;
-		hi_o <= HI;
-		lo_o <= reg1_i;
-	end 	else 	begin
-		whilo_o <= `WriteDisable;
-		hi_o <= `ZeroWord;
-		lo_o <= `ZeroWord;
-	end				
-end			
-*/
 
 always @ (*) begin
 	if(rst == `RstEnable) begin

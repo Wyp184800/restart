@@ -1,3 +1,5 @@
+`include "defines.v"
+
 module LLbit_reg(
 	input		wire			clk,
 	input		wire			rst,
