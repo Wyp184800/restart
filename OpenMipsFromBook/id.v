@@ -5,6 +5,8 @@ module id(
 	input 	wire[`InstAddrBus]	pc_i,
 	input		wire[`InstBus]			inst_i,
 	
+	input		wire[`AluOpBus]		ex_aluop_i,
+	
 	//读取Regfile的值
 	input		wire[`RegBus]			reg1_data_i,
 	input		wire[`RegBus]			reg2_data_i,
@@ -60,11 +62,15 @@ wire[`RegBus]	pc_plus_4;
 
 wire[`RegBus]	imm_sll2_signedext;
 
+//定义新的变量，表示两个几顿器是否与上一条指令存在load相关
+reg		stallreq_for_reg1_loadrelate;
+reg		stallreq_for_reg2_loadrelate;
+
+//定义新的变量，指示上一条指令是否是加载指令
+wire		pre_inst_is_load;
+
 assign	pc_plus_8 = pc_i + 8;
 assign	pc_plus_4 = pc_i + 4;
-
-//imm_sll2_signedext对应分支指令中的offset左移两位，再符号扩展至32位的值
-assign	imm_sll2_signedext = {{14{inst_i[15]}}, inst_i[15:0], 2'b00};
 
 //保存指令执行需要的立即数
 reg[`RegBus]	imm;
@@ -72,11 +78,24 @@ reg[`RegBus]	imm;
 //指示指令是否有效
 reg	instvalid;
 
-//流水线暂停指示
-assign stallreq = `NoStop;
+//imm_sll2_signedext对应分支指令中的offset左移两位，再符号扩展至32位的值
+assign	imm_sll2_signedext = {{14{inst_i[15]}}, inst_i[15:0], 2'b00};
 
 //inst_o的值就是译码阶段的指令
-assign inst_o = inst_i;
+assign 	inst_o = inst_i;
+
+//根据输入信号ex_aluop_i的值，判断上一条指令是否是加载指令，如果是，那么置pre_inst_is_load为1,反之置0
+assign	pre_inst_is_load	= ((ex_aluop_i == `EXE_LB_OP)		||
+										(ex_aluop_i == `EXE_LBU_OP)	||
+										(ex_aluop_i	== `EXE_LH_OP)		||
+										(ex_aluop_i	== `EXE_LHU_OP)	||
+										(ex_aluop_i	== `EXE_LW_OP)		||
+										(ex_aluop_i == `EXE_LWL_OP)	||
+										(ex_aluop_i == `EXE_LWR_OP)	||
+										(ex_aluop_i	== `EXE_LL_OP)		||
+										(ex_aluop_i	== `EXE_SC_OP))	?	1'b1	:	1'b0;
+
+assign	stallreq	=	stallreq_for_reg1_loadrelate	|	stallreq_for_reg2_loadrelate;
 
 /*第一段，对指令进行译码*/
 
@@ -796,11 +815,16 @@ always	@	(*)	begin
 end																//always		
 
 /*第二段，确定进行运算的源操作数1*/				
+//如果上一条指令是加载指令，且加载指令要加载到的目的寄存器就是当前指令要读去的通用寄存器，那么表示存在Load相关
 		
 always	@	(*)	begin
+	stallreq_for_reg1_loadrelate	<= `NoStop;
 	if(rst == `RstEnable)	begin
 		reg1_o <= `ZeroWord;
 	end	else	
+	if(pre_inst_is_load == 1'b1 && ex_wd_i == reg1_addr_o && reg1_read_o == 1'b1)	begin
+		stallreq_for_reg1_loadrelate	<= `Stop;
+	end else 
 	if((reg1_read_o == 1'b1) && (ex_wreg_i == 1'b1) && (ex_wd_i == reg1_addr_o))	begin			//ex阶段数据前推
 		reg1_o <= ex_wdata_i;
 	end	else
@@ -820,8 +844,12 @@ end
 /*第三段，确定进行运算的源操作数2*/	
 
 always	@ (*)	begin
+	stallreq_for_reg2_loadrelate	<= `NoStop;
 	if(rst == `RstEnable)	begin
 		reg2_o <= `ZeroWord;
+	end	else
+	if(pre_inst_is_load == 1'b1 && ex_wd_i == reg2_addr_o && reg2_read_o == 1'b1)	begin
+		stallreq_for_reg2_loadrelate	<= `Stop;
 	end	else
 	if((reg2_read_o == 1'b1) && (ex_wreg_i == 1'b1) && (ex_wd_i == reg2_addr_o))	begin			//ex阶段数据前推
 		reg2_o <= ex_wdata_i;
