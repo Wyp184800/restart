@@ -21,6 +21,10 @@
 `define		NotInDelaySlot	1'b0					//不在延迟槽中
 `define		Branch			1'b1					//转移
 `define		NotBranch		1'b0					//不转移	
+`define 		InterruptAssert		1'b1			//中断
+`define 		InterruptNotAssert	1'b0			//不中断
+`define 		TrapAssert 		1'b1
+`define 		TrapNotAssert 	1'b0
 
 /*与具体指令有关的宏定义*/
 
@@ -208,28 +212,37 @@
 `define		InstMemNumLog2	17						//ROM实际使用的地址线宽度
 
 /*与通用寄存器Regfile有关的宏定义*/
-`define 		RegAddrBus		4:0					//Regfile模块的地址线宽度
-`define 		RegBus			31:0					//Regfile模块的数据线宽度
-`define 		RegWidth			32						//通用寄存器的宽度
-`define 		DoubleRegWidth	64						//两倍的通用寄存器的宽度
-`define 		DoubleRegBus	63:0					//两倍的通用寄存器的数据线宽度
-`define		RegNum			32						//通用寄存器的数量
-`define		RegNumLog2		5						//寻址通用寄存器使用的地址位数
-`define		NOPRegAddr		5'b00000				
+`define 	RegAddrBus		4:0					//Regfile模块的地址线宽度
+`define 	RegBus			31:0					//Regfile模块的数据线宽度
+`define 	RegWidth			32						//通用寄存器的宽度
+`define 	DoubleRegWidth	64						//两倍的通用寄存器的宽度
+`define 	DoubleRegBus	63:0					//两倍的通用寄存器的数据线宽度
+`define	RegNum			32						//通用寄存器的数量
+`define	RegNumLog2		5						//寻址通用寄存器使用的地址位数
+`define	NOPRegAddr		5'b00000				
 
 /*除法DIV*/
-`define DivFree 2'b00
-`define DivByZero 2'b01
-`define DivOn 2'b10
-`define DivEnd 2'b11
-`define DivResultReady 1'b1
-`define DivResultNotReady 1'b0
-`define DivStart 1'b1
-`define DivStop 1'b0
+`define  DivFree 2'b00
+`define  DivByZero 2'b01
+`define  DivOn 2'b10
+`define  DivEnd 2'b11
+`define  DivResultReady 1'b1
+`define  DivResultNotReady 1'b0
+`define  DivStart 1'b1
+`define  DivStop 1'b0
 
-//数据RAM
+/*数据RAM*/
 `define	DataAddrBus		31:0
 `define	DataBus			31:0
 `define	DataMemNum		131071
 `define	DataMemNumLog2	17
 `define	ByteWidth		7:0
+
+/*CP0*/
+`define	CP0_REG_COUNT		5'b01001
+`define	CP0_REG_COMPARE	5'b01011
+`define	CP0_REG_STATUS		5'b01100
+`define	CP0_REG_CAUSE		5'b01101
+`define	CP0_REG_EPC			5'b01110
+`define	CP0_REG_PRid		5'b01111
+`define	CP0_REG_CONFIG		5'b10000

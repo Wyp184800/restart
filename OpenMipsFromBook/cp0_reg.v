@@ -6,7 +6,7 @@ module cp0(
 	
 	input		wire				we_i,
 	input		wire[4:0]		waddr_i,
-	input		wire[4:0]		raddri,
+	input		wire[4:0]		raddr_i,
 	input		wire[`RegBus]	data_i,
 	
 	input		wire[5:0]		int_i,
@@ -16,7 +16,7 @@ module cp0(
 	output	reg[`RegBus]	compare_o,
 	output	reg[`RegBus]	status_o,
 	output	reg[`RegBus]	cause_o,
-	output	reg{`RegBus}	epc_o,
+	output	reg[`RegBus]	epc_o,
 	output	reg[`RegBus]	config_o,
 	output	reg[`RegBus]	prid_o,
 	
@@ -45,7 +45,7 @@ always	@	(posedge	clk)	begin
 		//Config寄存器的初始值,BE字段为1，表示工作在大端模式
 		config_o		<= 8'h00008000;
 		
-		//PRId寄存器的初始值
+		//PRid寄存器的初始值
 		prid_o	<=	8'h004c00;
 		
 		timer_int_o	<= `InterruptNotAssert;
@@ -54,13 +54,66 @@ always	@	(posedge	clk)	begin
 		cause_o[15:10]	<= int_i;		//Cause寄存器的[15:10]保存外部中断声明
 		
 		//当Compare寄存器不为0，且Count寄存器的值等于Compare寄存器的值，时钟中断发生
-		if
+		if(compare_o != `ZeroWord && count_o == compare_o)	begin
+			timer_int_o <= `InterruptAssert;
+		end
+		
+		if(we_i == `WriteEnable)	begin
+			case(waddr_i)
+				`CP0_REG_COUNT:begin
+					count_o	<= data_i;
+				end
+				`CP0_REG_COMPARE:begin
+					compare_o	<= data_i;
+					timer_int_o	<=	`InterruptNotAssert;
+				end
+				`CP0_REG_STATUS:begin
+					status_o	<= data_i;
+				end
+				`CP0_REG_EPC:begin
+					epc_o	<= data_i;
+				end
+				`CP0_REG_CAUSE:begin
+					cause_o[9:8]	<= data_i[9:8];
+					cause_o[23:22]	<= data_i[23:22];
+				end
+			endcase		//case addri
+		end		//if(we_i == `WriteEnable)
+	end		
 end
 
 /*第二段，对CP0中寄存器的读操作*/
 
 always	@	(*)	begin
-
+	if(rst == `RstEnable)	begin
+		data_o	<= `ZeroWord;
+	end	else	begin
+		case(raddr_i)
+			`CP0_REG_COUNT:begin
+				data_o	<= count_o;
+			end
+			`CP0_REG_COMPARE:begin
+				data_o	<= compare_o;
+			end
+			`CP0_REG_STATUS:begin
+				data_o	<= status_o;
+			end
+			`CP0_REG_CAUSE:begin
+				data_o	<= cause_o;
+			end
+			`CP0_REG_EPC:begin
+				data_o	<= epc_o;
+			end
+			`CP0_REG_PRid:begin
+				data_o	<= prid_o;
+			end
+			`CP0_REG_CONFIG:begin
+				data_o	<= config_o;
+			end
+			default:begin
+			end
+		endcase
+	end		//if
 end
 
 endmodule 
