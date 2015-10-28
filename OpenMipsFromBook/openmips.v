@@ -14,7 +14,9 @@ module openmips(
 	output	wire[`RegBus]	ram_data_o,
 	output	wire				ram_we_o,
 	output	wire[3:0]		ram_sel_o,
-	output	wire				ram_ce_o
+	output	wire				ram_ce_o,
+	
+	output wire                    timer_int_o
 );
 
 //连接if_id与id模块的变量
@@ -55,6 +57,9 @@ wire[`AluOpBus] 		ex_aluop_o;
 wire[`RegBus] 			ex_mem_addr_o;
 wire[`RegBus] 			ex_reg1_o;
 wire[`RegBus] 			ex_reg2_o;	
+wire 						ex_cp0_reg_we_o;
+wire[4:0] 				ex_cp0_reg_write_addr_o;
+wire[`RegBus] 			ex_cp0_reg_data_o; 	
 
 //连接ex_mem与mem模块的变量
 wire						mem_wreg_i;
