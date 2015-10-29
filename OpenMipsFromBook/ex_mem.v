@@ -34,7 +34,16 @@ module ex_mem(
 	output	reg					mem_whilo,
 	output	reg[`AluOpBus]		mem_aluop,
 	output	reg[`RegBus]		mem_mem_addr,
-	output	reg[`RegBus]		mem_reg2
+	output	reg[`RegBus]		mem_reg2,
+	
+	//CP0相关
+	input		wire					ex_cp0_reg_we,
+	input		wire[4:0]			ex_cp0_reg_waddr,
+	input		wire[`RegBus]		ex_cp0_reg_data,
+	
+	output	reg					mem_cp0_reg_we,
+	output	reg[4:0]				mem_cp0_reg_waddr,
+	output	reg[`RegBus]		mem_cp0_reg_data
 );
 
 //在流水线执行阶段暂停时，将输入信号hilo_i通过hilo_o送出，cnt_i通过cnt_o送出，其余时刻，hilo_o和cnt_o为0
@@ -49,6 +58,9 @@ always	@	(posedge	clk)	begin
 		mem_whilo	<= `WriteDisable;
 		hilo_o		<= {`ZeroWord, `ZeroWord};
 		cnt_o			<= 2'b00;
+		mem_cp0_reg_we	<= `WriteDisable;
+		mem_cp0_reg_waddr	<= 5'b00000;
+		mem_cp0_reg_data	<= `ZeroWord;
 	end	else
 	if(stall[3] == `Stop && stall[4] == `NoStop)	begin
 		mem_wd		<= `NOPRegAddr;
@@ -59,6 +71,9 @@ always	@	(posedge	clk)	begin
 		mem_whilo	<= `WriteDisable;
 		hilo_o		<= hilo_i;
 		cnt_o			<= cnt_i;
+		mem_cp0_reg_we	<= `WriteDisable;
+		mem_cp0_reg_waddr	<= 5'b00000;
+		mem_cp0_reg_data	<= `ZeroWord;
 	end	else
 	if(stall[3] == `NoStop)begin
 		mem_wd		<=	ex_wd;
@@ -72,6 +87,9 @@ always	@	(posedge	clk)	begin
 		mem_aluop	<= ex_aluop;
 		mem_mem_addr	<= ex_mem_addr;
 		mem_reg2		<= ex_reg2;
+		mem_cp0_reg_we	<= ex_cp0_reg_we;
+		mem_cp0_reg_waddr	<= ex_cp0_reg_waddr;
+		mem_cp0_reg_data	<= ex_cp0_reg_data;
 	end	else	begin
 		hilo_o		<= hilo_i;
 		cnt_o			<= cnt_i;

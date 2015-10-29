@@ -16,7 +16,9 @@ module openmips(
 	output	wire[3:0]		ram_sel_o,
 	output	wire				ram_ce_o,
 	
-	output wire                    timer_int_o
+	input		wire[5:0]		int_i,									
+	
+	output 	wire           timer_int_o
 );
 
 //连接if_id与id模块的变量
