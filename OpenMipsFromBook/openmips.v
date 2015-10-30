@@ -387,16 +387,32 @@ div	div0(
 );
 
 LLbit_reg LLbit_reg0(
-		.clk(clk),						.rst(rst),
-	  .flush(1'b0),
+	.clk(clk),							.rst(rst),
+	.flush(1'b0),
 	  
-		//
-		.LLbit_i(wb_LLbit_value_i),
-		.we(wb_LLbit_we_i),
+	//
+	.LLbit_i(wb_LLbit_value_i),
+	.we(wb_LLbit_we_i),
 	
-		//
-		.LLbit_o(LLbit_o)
+	//
+	.LLbit_o(LLbit_o)
 	
+);
+
+cp0_reg cp0_reg0(
+	.clk(clk),							.rst(rst),
+		
+	.we_i(wb_cp0_reg_we_i),
+	.waddr_i(wb_cp0_reg_write_addr_i),
+	.raddr_i(cp0_raddr_i),
+	.data_i(wb_cp0_reg_data_i),
+		
+	//.excepttype_i(mem_excepttype_o),
+	.int_i(int_i),
+	//.current_inst_addr_i(mem_current_inst_address_o),
+	//.is_in_delayslot_i(mem_is_in_delayslot_o),
+	
+	.data_o(cp0_data_o),				.timer_int_o(timer_int_o)  			
 );
 
 endmodule
