@@ -74,6 +74,9 @@ wire[`AluOpBus] 		mem_aluop_i;
 wire[`RegBus] 			mem_mem_addr_i;
 wire[`RegBus] 			mem_reg1_i;
 wire[`RegBus] 			mem_reg2_i;		
+wire 						mem_cp0_reg_we_i;
+wire[4:0] 				mem_cp0_reg_waddr_i;
+wire[`RegBus] 			mem_cp0_reg_data_i;	
 
 //连接mem与mem_wb模块的变量
 wire						mem_wreg_o;
@@ -83,7 +86,10 @@ wire[`RegBus] 			mem_hi_o;
 wire[`RegBus] 			mem_lo_o;
 wire	 					mem_whilo_o;
 wire 						mem_LLbit_value_o;
-wire			 			mem_LLbit_we_o;		
+wire			 			mem_LLbit_we_o;	
+wire 						mem_cp0_reg_we_o;
+wire[4:0] 				mem_cp0_reg_waddr_o;
+wire[`RegBus]			mem_cp0_reg_data_o;		
 
 //连接mem_wb与wb模块的变量
 wire						wb_wreg_i;
@@ -94,6 +100,9 @@ wire[`RegBus] 			wb_lo_i;
 wire 						wb_whilo_i;
 wire 						wb_LLbit_value_i;
 wire 						wb_LLbit_we_i;
+wire 						wb_cp0_reg_we_i;
+wire[4:0] 				wb_cp0_reg_waddr_i;
+wire[`RegBus] 			wb_cp0_reg_data_i;
 
 //连接id与Regfile模块的变量
 wire						reg1_read;
@@ -128,11 +137,14 @@ wire 						next_inst_in_delayslot_o;
 wire 						id_branch_flag_o;
 wire[`RegBus] 			branch_target_address;
 
-wire[5:0] stall;
-wire stallreq_from_id;	
-wire stallreq_from_ex;
+wire[5:0] 				stall;
+wire 						stallreq_from_id;	
+wire 						stallreq_from_ex;
 
-wire LLbit_o;
+wire 						LLbit_o;
+
+wire[`RegBus] 			cp0_data_o;
+wire[4:0] 				cp0_raddr_i;
 
 //pc_reg例化
 pc_reg	pc_reg0(
@@ -257,7 +269,15 @@ ex			ex0(
 	.aluop_o(ex_aluop_o),			.mem_addr_o(ex_mem_addr_o),
 	.reg2_o(ex_reg2_o),
 	
-	.stallreq(stallreq_from_ex)
+	.stallreq(stallreq_from_ex),
+	
+	//到CP0的输出
+	.mem_cp0_reg_we(mem_cp0_reg_we_o),
+	.mem_cp0_reg_waddr(mem_cp0_reg_waddr_o),
+	.mem_cp0_reg_data(mem_cp0_reg_data_o),
+	
+	.wb_cp0_
+	
 );
 
 //ex_mem模块例化
