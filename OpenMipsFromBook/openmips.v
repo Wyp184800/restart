@@ -60,7 +60,7 @@ wire[`RegBus] 			ex_mem_addr_o;
 wire[`RegBus] 			ex_reg1_o;
 wire[`RegBus] 			ex_reg2_o;	
 wire 						ex_cp0_reg_we_o;
-wire[4:0] 				ex_cp0_reg_write_addr_o;
+wire[4:0] 				ex_cp0_reg_waddr_o;
 wire[`RegBus] 			ex_cp0_reg_data_o; 	
 
 //连接ex_mem与mem模块的变量
@@ -276,7 +276,16 @@ ex			ex0(
 	.mem_cp0_reg_waddr(mem_cp0_reg_waddr_o),
 	.mem_cp0_reg_data(mem_cp0_reg_data_o),
 	
-	.wb_cp0_
+	.wb_cp0_reg_we(wb_cp0_reg_we_i),
+	.wb_cp0_reg_waddr(wb_cp0_reg_waddr_i),
+	.wb_cp0_reg_data(wb_cp0_reg_data_i),
+	
+	.cp0_reg_data_i(cp0_data_o),
+	.cp0_reg_raddr_o(cp0_raddr_i),
+	
+	.cp0_reg_we_o(ex_cp0_reg_we_o),
+	.cp0_reg_waddr_o(ex_cp0_reg_waddr_o),
+	.cp0_reg_data_o(ex_cp0_reg_data_o)	  
 	
 );
 
@@ -295,6 +304,10 @@ ex_mem	ex_mem0(
 	
 	.hilo_i(hilo_temp_o),			.cnt_i(cnt_o),
 	
+	.ex_cp0_reg_we(ex_cp0_reg_we_o),
+	.ex_cp0_reg_waddr(ex_cp0_reg_waddr_o),
+	.ex_cp0_reg_data(ex_cp0_reg_data_o),
+	
 	//送到mem阶段的信息
 	.mem_wd(mem_wd_i),				.mem_wreg(mem_wreg_i),
 	.mem_wdata(mem_wdata_i),		.mem_hi(mem_hi_i),
@@ -302,52 +315,63 @@ ex_mem	ex_mem0(
 	.mem_aluop(mem_aluop_i),		.mem_mem_addr(mem_mem_addr_i),
 	.mem_reg2(mem_reg2_i),	
 	
+	.mem_cp0_reg_we(mem_cp0_reg_we_i),
+	.mem_cp0_reg_waddr(mem_cp0_reg_waddr_i),
+	.mem_cp0_reg_data(mem_cp0_reg_data_i),
+	
 	.hilo_o(hilo_temp_i),			.cnt_o(cnt_i)
 );
 
 //mem模块例化
 mem mem0(
-		.rst(rst),
-	
-		//来自ex_mem模块的信息
-		.wd_i(mem_wd_i),
-		.wreg_i(mem_wreg_i),
-		.wdata_i(mem_wdata_i),
-		.hi_i(mem_hi_i),
-		.lo_i(mem_lo_i),
-		.whilo_i(mem_whilo_i),		
+	.rst(rst),
 
-		.aluop_i(mem_aluop_i),
-		.mem_addr_i(mem_mem_addr_i),
-		.reg2_i(mem_reg2_i),
-	
-		//来自Dcache的信息
-		.mem_data_i(ram_data_i),
-		
-		//
-		.LLbit_i(LLbit_o),
-		
-		//
-		.wb_LLbit_we_i(wb_LLbit_we_i),
-		.wb_LLbit_value_i(wb_LLbit_value_i),
+	//来自ex_mem模块的信息
+	.wd_i(mem_wd_i),
+	.wreg_i(mem_wreg_i),
+	.wdata_i(mem_wdata_i),
+	.hi_i(mem_hi_i),
+	.lo_i(mem_lo_i),
+	.whilo_i(mem_whilo_i),		
+	.aluop_i(mem_aluop_i),
+	.mem_addr_i(mem_mem_addr_i),
+	.reg2_i(mem_reg2_i),
 
-		.LLbit_we_o(mem_LLbit_we_o),
-		.LLbit_value_o(mem_LLbit_value_o),
-	  
-		//送到mem_wb模块的信息
-		.wd_o(mem_wd_o),
-		.wreg_o(mem_wreg_o),
-		.wdata_o(mem_wdata_o),
-		.hi_o(mem_hi_o),
-		.lo_o(mem_lo_o),
-		.whilo_o(mem_whilo_o),
+	//来自Dcache的信息
+	.mem_data_i(ram_data_i),
+	
+	//
+	.LLbit_i(LLbit_o),
 		
-		//送到Dcache的信息
-		.mem_addr_o(ram_addr_o),
-		.mem_we_o(ram_we_o),
-		.mem_sel_o(ram_sel_o),
-		.mem_data_o(ram_data_o),
-		.mem_ce_o(ram_ce_o)		
+	//
+	.wb_LLbit_we_i(wb_LLbit_we_i),
+	.wb_LLbit_value_i(wb_LLbit_value_i),
+	
+	.cp0_reg_we_i(mem_cp0_reg_we_i),
+	.cp0_reg_waddr_i(mem_cp0_reg_waddr_i),
+	.cp0_reg_data_i(mem_cp0_reg_data_i),
+
+	.LLbit_we_o(mem_LLbit_we_o),
+	.LLbit_value_o(mem_LLbit_value_o),
+	
+	.cp0_reg_we_o(mem_cp0_reg_we_o),
+	.cp0_reg_waddr_o(mem_cp0_reg_waddr_o),
+	.cp0_reg_data_o(mem_cp0_reg_data_o),
+	 
+	//送到mem_wb模块的信息
+	.wd_o(mem_wd_o),
+	.wreg_o(mem_wreg_o),
+	.wdata_o(mem_wdata_o),
+	.hi_o(mem_hi_o),
+	.lo_o(mem_lo_o),
+	.whilo_o(mem_whilo_o),
+	
+	//送到Dcache的信息
+	.mem_addr_o(ram_addr_o),
+	.mem_we_o(ram_we_o),
+	.mem_sel_o(ram_sel_o),
+	.mem_data_o(ram_data_o),
+	.mem_ce_o(ram_ce_o)		
 );
 
 //mem_wb模块例化
@@ -363,13 +387,21 @@ mem_wb	mem_wb0(
 	.mem_LLbit_we(mem_LLbit_we_o),
 	.mem_LLbit_value(mem_LLbit_value_o),
 	
+	.mem_cp0_reg_we(mem_cp0_reg_we_o),
+	.mem_cp0_reg_waddr(mem_cp0_reg_waddr_o),
+	.mem_cp0_reg_data(mem_cp0_reg_data_o),
+	
 	//送到wb阶段的信息
 	.wb_wd(wb_wd_i),					.wb_wreg(wb_wreg_i),
 	.wb_wdata(wb_wdata_i),			.wb_hi(wb_hi_i),
 	.wb_lo(wb_lo_i),					.wb_whilo(wb_whilo_i),
 	
 	.wb_LLbit_we(wb_LLbit_we_i),
-	.wb_LLbit_value(wb_LLbit_value_i)
+	.wb_LLbit_value(wb_LLbit_value_i),
+	
+	.wb_cp0_reg_we(wb_cp0_reg_we_i),
+	.wb_cp0_reg_waddr(wb_cp0_reg_waddr_i),
+	.wb_cp0_reg_data(wb_cp0_reg_data_i)
 );
 
 //hilo_reg模块例化
@@ -423,7 +455,7 @@ cp0_reg cp0_reg0(
 	.clk(clk),							.rst(rst),
 		
 	.we_i(wb_cp0_reg_we_i),
-	.waddr_i(wb_cp0_reg_write_addr_i),
+	.waddr_i(wb_cp0_reg_waddr_i),
 	.raddr_i(cp0_raddr_i),
 	.data_i(wb_cp0_reg_data_i),
 		
