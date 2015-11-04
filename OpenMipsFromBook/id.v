@@ -47,7 +47,11 @@ module id(
 	output	reg						is_in_delayslot_o,
 	
 	//加载存储指令
-	output	wire[`RegBus]			inst_o
+	output	wire[`RegBus]			inst_o,
+	
+	//异常
+	output	wire[31:0]				excepttype_o,
+	output	wire[`RegBus]			current_inst_address_o
 );
 
 //取得指令的指令码
@@ -97,6 +101,12 @@ assign	pre_inst_is_load	= ((ex_aluop_i == `EXE_LB_OP)		||
 
 assign	stallreq	=	stallreq_for_reg1_loadrelate	|	stallreq_for_reg2_loadrelate;
 
+//excepttype_o的低8位留给外部中断，第8位表示是否由syscall指令引起的异常，第9位是否无效指令引起的异常，第12位是否是返回异常
+assign	excepttype_o	= {19'b0, excepttype_is_eret, 2'b0, instvalid, excepttype_is_syscall, 8'b0};
+
+//输入信号pc_i就是当前处于译码阶段的指令的地址
+assign	current_inst_address_o	= pc_i;
+
 /*第一段，对指令进行译码*/
 
 always	@	(*)	begin
@@ -130,6 +140,9 @@ always	@	(*)	begin
 		branch_target_address_o		<= `ZeroWord;
 		branch_flag_o					<= `NotBranch;
 		next_inst_in_delayslot_o	<=	`NotInDelaySlot;
+		excepttype_is_syscall		<= `False_v;
+		excepttype_is_eret			<= `False_v;
+		instvalid						<= `InstInvaild;
 		case(op)
 			`EXE_SPECIAL_INST:begin
 				case(op2)
@@ -355,6 +368,63 @@ always	@	(*)	begin
 								branch_flag_o					<= `Branch;
 								next_inst_in_delayslot_o	<= `InDelaySlot;
 								instvalid	<= `InstValid;
+							end
+							`EXE_TEQ:begin
+								wreg_o		<= `WriteDisable;
+								aluop_o		<= `EXE_SYSCALL_OP;
+								alusel_o		<= `EXE_RES_NOP;
+								reg1_read_o	<= 1'b0;
+								reg2_read_o	<= 1'b0;
+								instvalid	<= `InstValid;
+							end
+							`EXE_TGE:begin
+								wreg_o		<= `WriteDisable;
+								aluop_o		<= `EXE_TGE_OP;
+								alusel_o		<= `EXE_RES_NOP;
+								reg1_read_o	<= 1'b1;
+								reg2_read_o	<= 1'b1;
+								instvalid	<= `InstValid;
+							end
+							`EXE_TGEU:begin
+								wreg_o		<= `WriteDisable;
+								aluop_o		<= `EXE_TGEU_OP;
+								alusel_o		<= `EXE_RES_NOP;
+								reg1_read_o	<= 1'b1;
+								reg2_read_o	<= 1'b1;
+								instvalid	<= `InstValid;
+							end
+							`EXE_TLT:begin
+								wreg_o		<= `WriteDisable;
+								aluop_o		<= `EXE_TLT_OP;
+								alusel_o		<= `EXE_RES_NOP;
+								reg1_read_o	<= 1'b1;
+								reg2_read_o	<= 1'b1;
+								instvalid	<= `InstValid;
+							end
+							`EXE_TLTU:begin
+								wreg_o		<= `WriteDisable;
+								aluop_o		<= `EXE_TLTU_OP;
+								alusel_o		<= `EXE_RES_NOP;
+								reg1_read_o	<= 1'b1;
+								reg2_read_o	<= 1'b1;
+								instvalid	<= `InstValid;
+							end
+							`EXE_TNE:begin
+								wreg_o		<= `WriteDisable;
+								aluop_o		<= `EXE_TNE_OP;
+								alusel_o		<= `EXE_RES_NOP；
+								reg1_read_o	<= 1'b1;
+								reg2_read_o	<= 1'b1;
+								instvalid	<= `InstValid;
+							end
+							`EXE_SYSCALL:begin
+								wreg_o		<= `WriteDisable;
+								aluop_o		<= `EXE_SYSCALL_OP;
+								alusel_o		<= `EXE_RES_NOP;
+								reg1_read_o	<= 1'b0;
+								reg2_read_o	<= 1'b0;
+								instvalid	<= `InstValid;
+								excepttype_is_syscall	<= `True_v;
 							end
 							default:begin
 							end
@@ -709,6 +779,60 @@ always	@	(*)	begin
 							next_inst_in_delayslot_o	<= `InDelaySlot;
 						end
 					end
+					`EXE_TEQI:begin
+						wreg_o		<= `WriteDisable;
+						aluop_o		<= `EXE_TEQI_OP;
+						alusel_o		<= `EXE_RES_NOP;
+						reg1_read_o	<= 1'b1;
+						reg2_read_o	<= 1'b0;
+						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						instvalid	<= `InstValid;
+					end
+					`EXE_TGEI:begin
+						wreg_o		<= `WriteDisable;
+						aluop_o		<= `EXE_TGEI_OP;
+						alusel_o		<= `EXE_RES_NOP;
+						reg1_read_o	<= 1'b1;
+						reg2_read_o	<= 1'b0;
+						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						instvalid	<= `InstValid;
+					end
+					`EXE_TGEIU:begin
+						wreg_o		<= `WriteDisable;
+						aluop_o		<= `EXE_TGEIU_OP;
+						alusel_o		<= `EXE_RES_NOP;
+						reg1_read_o	<= 1'b1;
+						reg2_read_o	<= 1'b0;
+						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						instvalid	<= `InstValid;
+					end
+					`EXE_TLTI:begin
+						wreg_o		<= `WriteDisable;
+						aluop_o		<= `EXE_TLTI_OP;
+						alusel_o		<= `EXE_RES_NOP;
+						reg1_read_o	<= 1'b1;
+						reg2_read_o	<= 1'b0;
+						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						instvalid	<= `InstValid;
+					end
+					`EXE_TLTIU:begin
+						wreg_o		<= `WriteDisable;
+						aluop_o		<= `EXE_TLTIU_OP;
+						alusel_o		<= `EXE_RES_NOP；
+						reg1_read_o	<= 1'b1;
+						reg2_read_o	<= 1'b0;
+						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						instvalid	<= `InstValid;
+					end
+					`EXE_TNEI:begin
+						wreg_o		<= `WriteDisable;
+						aluop_o		<= `EXE_TNEI_OP;
+						alusel_o		<= `EXE_RES_NOP;
+						reg1_read_o	<= 1'b1;
+						reg2_read_o	<= 1'b0;
+						imm			<= {16{inst_i[15]}, inst_i[15]};
+						instvalid	<= `InstValid;
+					end
 					default:begin
 					end
 				endcase
@@ -812,6 +936,15 @@ always	@	(*)	begin
 			end
 		end
 		
+		if(inst_i == `EXE_ERET) begin
+			wreg_o <= `WriteDisable;
+			aluop_o <= `EXE_ERET_OP;
+		  	alusel_o <= `EXE_RES_NOP;   
+			reg1_read_o <= 1'b0;	
+			reg2_read_o <= 1'b0;
+		  	instvalid <= `InstValid;
+			excepttype_is_eret<= `True_v;				
+		end else 
 		if(inst_i[31:21] == 11'b010000000000 && inst_i[10:0] == 11'b00000000000)	begin			//mfc0
 			aluop_o	<= `EXE_MFC0_OP;
 			alusel_o	<= `EXE_RES_MOVE;
