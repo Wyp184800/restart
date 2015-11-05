@@ -191,24 +191,21 @@
 `define EXE_BLTZAL_OP  8'b01001010
 `define EXE_BNE_OP  	8'b01010010
 
-`define EXE_LB_OP  	8'b11100000
-`define EXE_LBU_OP  	8'b11100100
-`define EXE_LH_OP  	8'b11100001
-`define EXE_LHU_OP  	8'b11100101
-`define EXE_LL_OP  	8'b11110000
-`define EXE_LW_OP  	8'b11100011
-`define EXE_LWL_OP  	8'b11100010
-`define EXE_LWR_OP 	8'b11100110
+`define EXE_LB_OP  8'b11100000
+`define EXE_LBU_OP  8'b11100100
+`define EXE_LH_OP  8'b11100001
+`define EXE_LHU_OP  8'b11100101
+`define EXE_LL_OP  8'b11110000
+`define EXE_LW_OP  8'b11100011
+`define EXE_LWL_OP  8'b11100010
+`define EXE_LWR_OP  8'b11100110
 `define EXE_PREF_OP  8'b11110011
-`define EXE_SB_OP  	8'b11101000
-`define EXE_SC_OP  	8'b11111000
-`define EXE_SH_OP  	8'b11101001
-`define EXE_SW_OP  	8'b11101011
-`define EXE_SWL_OP  	8'b11101010
-`define EXE_SWR_OP  	8'b11101110
-
-`define EXE_MFC0_OP 	8'b01011101
-`define EXE_MTC0_OP	8'b01100000
+`define EXE_SB_OP  8'b11101000
+`define EXE_SC_OP  8'b11111000
+`define EXE_SH_OP  8'b11101001
+`define EXE_SW_OP  8'b11101011
+`define EXE_SWL_OP  8'b11101010
+`define EXE_SWR_OP  8'b11101110
 
 `define EXE_SYSCALL_OP 8'b00001100
 
@@ -231,15 +228,15 @@
 
 //AluSel
 
-`define EXE_RES_LOGIC 	3'b001
-`define EXE_RES_SHIFT 	3'b010
-`define EXE_RES_MOVE 	3'b011	
+`define EXE_RES_LOGIC 3'b001
+`define EXE_RES_SHIFT 3'b010
+`define EXE_RES_MOVE 3'b011	
 `define EXE_RES_ARITHMETIC 3'b100	
-`define EXE_RES_MUL 		3'b101
-`define EXE_RES_JUMP_BRANCH	3'b110
-`define EXE_RES_LOAD_STORE	3'b111	
+`define EXE_RES_MUL 3'b101
+`define EXE_RES_JUMP_BRANCH 3'b110
+`define EXE_RES_LOAD_STORE 3'b111	
 
-`define EXE_RES_NOP 		3'b000
+`define EXE_RES_NOP 3'b000
 
 /*与指令存储器ROM有关的宏定义*/
 `define		InstAddrBus		31:0					//ROM的地址总线宽度

@@ -1,6 +1,6 @@
 `include "defines.v"
 
-module cp0_reg(
+module cp0(
 	input		wire				clk,
 	input		wire				rst,
 	
@@ -34,7 +34,7 @@ always	@	(posedge	clk)	begin
 		compare_o	<= `ZeroWord;
 		
 		//Status寄存器的初始值，CU字段0001，表示CP0存在
-		status_o		<= 32'b00010000000000000000000000000000;
+		status_o		<= 8'h10000000;
 		
 		//Cause寄存器的初始值0
 		cause_o		<= `ZeroWord;
@@ -43,10 +43,10 @@ always	@	(posedge	clk)	begin
 		epc_o			<=	`ZeroWord;
 		
 		//Config寄存器的初始值,BE字段为1，表示工作在大端模式
-		config_o		<= 32'b00000000000000001000000000000000;
+		config_o		<= 8'h00008000;
 		
 		//PRid寄存器的初始值
-		prid_o	<=	32'b00000000010011000000000100000010;
+		prid_o	<=	8'h004c00;
 		
 		timer_int_o	<= `InterruptNotAssert;
 	end	else	begin
