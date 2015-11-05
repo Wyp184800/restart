@@ -101,6 +101,9 @@ assign	pre_inst_is_load	= ((ex_aluop_i == `EXE_LB_OP)		||
 
 assign	stallreq	=	stallreq_for_reg1_loadrelate	|	stallreq_for_reg2_loadrelate;
 
+reg	excepttype_is_syscall;
+reg	excepttype_is_eret;
+
 //excepttype_o的低8位留给外部中断，第8位表示是否由syscall指令引起的异常，第9位是否无效指令引起的异常，第12位是否是返回异常
 assign	excepttype_o	= {19'b0, excepttype_is_eret, 2'b0, instvalid, excepttype_is_syscall, 8'b0};
 
@@ -125,6 +128,8 @@ always	@	(*)	begin
 		branch_target_address_o		<= `ZeroWord;
 		branch_flag_o					<= `NotBranch;
 		next_inst_in_delayslot_o	<=	`NotInDelaySlot;
+		excepttype_is_syscall	<= `False_v;
+		excepttype_is_eret 		<= `False_v;	
 	end	else	begin
 		aluop_o		<= `EXE_NOP_OP;
 		alusel_o		<= `EXE_RES_NOP;
@@ -142,7 +147,7 @@ always	@	(*)	begin
 		next_inst_in_delayslot_o	<=	`NotInDelaySlot;
 		excepttype_is_syscall		<= `False_v;
 		excepttype_is_eret			<= `False_v;
-		instvalid						<= `InstInvaild;
+		instvalid						<= `InstInvalid;
 		case(op)
 			`EXE_SPECIAL_INST:begin
 				case(op2)
@@ -412,7 +417,7 @@ always	@	(*)	begin
 							`EXE_TNE:begin
 								wreg_o		<= `WriteDisable;
 								aluop_o		<= `EXE_TNE_OP;
-								alusel_o		<= `EXE_RES_NOP；
+								alusel_o		<= `EXE_RES_NOP;
 								reg1_read_o	<= 1'b1;
 								reg2_read_o	<= 1'b1;
 								instvalid	<= `InstValid;
@@ -785,7 +790,7 @@ always	@	(*)	begin
 						alusel_o		<= `EXE_RES_NOP;
 						reg1_read_o	<= 1'b1;
 						reg2_read_o	<= 1'b0;
-						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						imm			<= {{16{inst_i[15]}}, inst_i[15:0]};
 						instvalid	<= `InstValid;
 					end
 					`EXE_TGEI:begin
@@ -794,7 +799,7 @@ always	@	(*)	begin
 						alusel_o		<= `EXE_RES_NOP;
 						reg1_read_o	<= 1'b1;
 						reg2_read_o	<= 1'b0;
-						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						imm			<= {{16{inst_i[15]}}, inst_i[15:0]};
 						instvalid	<= `InstValid;
 					end
 					`EXE_TGEIU:begin
@@ -803,7 +808,7 @@ always	@	(*)	begin
 						alusel_o		<= `EXE_RES_NOP;
 						reg1_read_o	<= 1'b1;
 						reg2_read_o	<= 1'b0;
-						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						imm			<= {{16{inst_i[15]}}, inst_i[15:0]};
 						instvalid	<= `InstValid;
 					end
 					`EXE_TLTI:begin
@@ -812,16 +817,16 @@ always	@	(*)	begin
 						alusel_o		<= `EXE_RES_NOP;
 						reg1_read_o	<= 1'b1;
 						reg2_read_o	<= 1'b0;
-						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						imm			<= {{16{inst_i[15]}}, inst_i[15:0]};
 						instvalid	<= `InstValid;
 					end
 					`EXE_TLTIU:begin
 						wreg_o		<= `WriteDisable;
 						aluop_o		<= `EXE_TLTIU_OP;
-						alusel_o		<= `EXE_RES_NOP；
+						alusel_o		<= `EXE_RES_NOP;
 						reg1_read_o	<= 1'b1;
 						reg2_read_o	<= 1'b0;
-						imm			<= {16{inst_i[15]}, inst_i[15:0]};
+						imm			<= {{16{inst_i[15]}}, inst_i[15:0]};
 						instvalid	<= `InstValid;
 					end
 					`EXE_TNEI:begin
@@ -830,7 +835,7 @@ always	@	(*)	begin
 						alusel_o		<= `EXE_RES_NOP;
 						reg1_read_o	<= 1'b1;
 						reg2_read_o	<= 1'b0;
-						imm			<= {16{inst_i[15]}, inst_i[15]};
+						imm			<= {{16{inst_i[15]}}, inst_i[15]};
 						instvalid	<= `InstValid;
 					end
 					default:begin
