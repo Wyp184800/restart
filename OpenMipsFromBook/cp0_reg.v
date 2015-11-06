@@ -98,8 +98,62 @@ always	@	(posedge	clk)	begin
 			32'h00000008:begin
 				if(status_o[1] == 1'b0)	begin
 					if(is_in_delayslot_i == `InDelaySlot)	begin
-						epc_o	<=
-	end		
+						epc_o	<=	currengt_inst_addr_i - 4;
+						cause_o[31]	<= 1'b1;
+					end	else	begin
+						epc_o	<= currengt_inst_addr_i;
+						cause_o[30]	<= 1'b0;
+					end
+				end
+				status_o[1]	<= 1'b1;
+				cause_o[6:2]	<= 5'b01000;
+			end
+			32'h0000000a:begin
+				if(status_o[1] <= 1'b0)	begin
+					if(is_in_delayslot_i	== `InDelaySlot)	begin
+						epc_o	<= currengt_inst_addr_i - 4;
+						cause_o[31]	<= 1'b1;
+					end	else	begin
+						epc_o	<= currengt_inst_addr_i;
+						cause_o[31]	<= 1'b0;
+					end
+				end
+				status_o[1]	<= 1'b1;
+				cause_o[6:2]	<= 5'b01010;
+			end
+			32'h0000000d:begin
+				if(status_o[1]	== 1'b0)	begin
+					if(is_in_delayslot_i	== `InDelaySlot)	begin
+						epc_o	<= currengt_inst_addr_i - 4;
+						cause_o[31]	<= 1'b1;
+					end	else	begin
+						epc_o	<= currengt_inst_addr_i;
+						cause_o[31]	<= 1'b0;
+					end
+				end
+				status_o[1]	<=1'b1;
+				cause_o[6:2]	<=5'b01101;
+			end
+			32'h0000000c:begin
+				if(status_o[1]	== 1'b0)	begin
+					if(is_in_delayslot_i == `InDelaySlot)	begin
+						epc_o	<= currengt_inst_addr_i - 4;
+						cause_o[31]	<= 1'b1;
+					end	else	begin
+						epc_o	<= currengt_inst_addr_i;
+						cause_o[31]	<= 1'b0;
+					end
+				end
+				status_o[1]	<= 1'b1;
+				cause_o[6:2]	<= 5'b01100;
+			end
+			32'h0000000e:begin
+				status_o[1]	<= 1'b0;
+			end
+			default:begin
+			end
+		endcase
+	end		//if
 end
 
 /*第二段，对CP0中寄存器的读操作*/

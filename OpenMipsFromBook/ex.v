@@ -81,7 +81,15 @@ module ex(
 	//向流水线下一级传递，用于写CP0的寄存器
 	output	reg					cp0_reg_we_o,
 	output	reg[4:0]				cp0_reg_waddr_o,
-	output	reg[`RegBus]		cp0_reg_data_o
+	output	reg[`RegBus]		cp0_reg_data_o,
+	
+	//异常指令相关
+	input		wire[31:0]			excepttype_i,
+	input		wire[`RegBus]		current_inst_address_i,
+	
+	output	wire[31:0]			excepttype_o,
+	output	wire					is_in_delayslot_o,
+	output	wire[`RegBus]		current_inst_address_o
 );
 
 reg[`RegBus]	logicout;							//逻辑操作的结果
@@ -105,6 +113,9 @@ reg[`DoubleRegBus]	mulres;						//保存乘法结果，宽度64
 reg				stallreq_for_madd_msub;
 reg				stallreq_for_div;					//由除法运算导致流水线暂停
 
+reg				trapassert							//是否有自陷异常
+reg				ovassert								//是否有溢出异常
+
 //aluop_o会传递到访存阶段，解释将利用其确定加载，存储类型
 assign	aluop_o = aluop_i;
 
@@ -113,6 +124,12 @@ assign	mem_addr_o = reg1_i + {{16{inst_i[15]}}, inst_i[15:0]};
 
 //reg2_i是存储指令要存储的数据，或者lwl,lwr指令要加载到目的寄存器的原始值，通过reg2_o传递到访存阶段
 assign	reg2_o = reg2_i;
+
+//执行阶段输出的异常信息就是译码阶段的异常信息加上自陷异常，溢出异常的信息，10bit表示自陷异常，11bit表示溢出异常
+assign	excepttype_o	={excepttype_i[31:12], ovassert, trapassert, excepttype_i[9:8], 8'h00};
+
+//当前处于执行阶段指令的地址
+assign	current_inst_address_o	= current_inst_address_i;
 
 /*第一段，根据aluop_i指示的运算子类型进行运算*/
 
@@ -255,18 +272,22 @@ end
 
 assign reg2_i_mux	=	((aluop_i == `EXE_SUB_OP) || 
 							(aluop_i == `EXE_SUBU_OP) ||
-							(aluop_i == `EXE_SLT_OP)) ?
+							(aluop_i == `EXE_SLT_OP) ||
+							(aluop_i == `EXE_TLT_OP) ||
+							(aluop_i == `EXE_TLTI_OP) ||
+							(aluop_i == `EXE_TGE_OP) ||
+							(aluop_i == `EXE_TGEI_OP)) ?
 							(~reg2_i)+1 : reg2_i;
 							
 //分三种情况：
 //如果是加法运算，此时reg2_i_mux就是第二个操作数reg2_i，所以result_sum就是加法运算的结果
 //如果是减法运算，此时reg2_i_mux就是第二个操作数reg2_i的补码，所以result_sum就是减法运算的结果
-//如果是有符号比较运算，此时reg2_i_mux也是第二个操作数reg2_i的补码，所以result_sum也是减法运算的结果，根据结果是否小于0，进而判断两个操作数的大小
+//如果是有符号比较运算或者有符号的自陷指令，此时reg2_i_mux也是第二个操作数reg2_i的补码，所以result_sum也是减法运算的结果，根据结果是否小于0，进而判断两个操作数的大小
 
 assign result_sum	=	reg1_i+reg2_i_mux;
 
 //计算是否溢出。加法指令和减法指令执行的时候，需要判断是否溢出，满足以下两种情况之一时，有溢出：
-//reg1_i为整数，reg2_i_mux为整数，但两者之和为负数，
+//reg1_i为正数，reg2_i_mux为正数，但两者之和为负数，
 //reg1_i为负数，reg2_i_mux为负数，但两者之和为正数
 
 assign ov_sum	=	((!reg1_i[31] && !reg2_i_mux[31]) && result_sum[31]) || 
@@ -279,7 +300,11 @@ assign ov_sum	=	((!reg1_i[31] && !reg2_i_mux[31]) && result_sum[31]) ||
 //		reg1_i为负数，reg2_i为负数，差小于0，此时也有reg1_i小于reg2_i
 //	 无符号数比较时，直接使用比较运算符比较reg1_i和reg2_i
 
-assign reg1_lt_reg2	=	(aluop_i == `EXE_SLT_OP) ? 
+assign reg1_lt_reg2	=	((aluop_i == `EXE_SLT_OP) ||
+								(aluop_i == `EXE_TLT_OP) ||
+								(aluop_i == `EXE_TLTI_OP) ||
+								(aluop_i	== `EXE_TGE_OP) ||
+								(aluop_i == `EXE_TGEI_OP)) ? 
 								((reg1_i[31] && !reg2_i[31]) ||
 								(!reg1_i[31] && !reg2_i[31] && result_sum[31]) ||
 								(reg1_i[31]  && reg2_i[31] && result_sum[31])) :
@@ -579,5 +604,29 @@ always	@	(*)	begin
 		cp0_reg_data_o		<= `ZeroWord;
 	end
 end
+
+/*第十三段，判断是否发生自陷异常*/
+always	@	(*)	begin
+	if(rst == `RstEnable)	begin
+		trapassert	<= `TrapNotAssert;
+	end	else	begin
+		trapassert	<= `TrapNotAssert;
+		case(aluop_i)
+			`EXE_TEQ_OP, `EXE_TEQI_OP:begin
+				if(reg1_i == reg2_i)	begin
+					trapassert	<= `TrapAssert;
+				end
+			end
+			`EXE_TGE_OP, `EXE_TGEI_OP, `EXE_TGEIU_OP, `EXE_TGEU_OP:begin
+				if(~reg1_lt_reg2)	begin
+					trapassert	<= `TrapAssert;
+				end
+			end
+			`EXE_TLT_OP, `EXE_TLTI_OP, `EXE_TLTIU_OP, `EXE_TLTU_OP:begin
+				if(reg1_lt_reg2)	begin
+					trapassert	<= `TrapAssert;
+				end
+			end
+			`EXE_TNE_OP, `EXE_
 
 endmodule
