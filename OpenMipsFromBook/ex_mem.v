@@ -6,6 +6,7 @@ module ex_mem(
 	
 	//来自控制模块的信息
 	input		wire[5:0]			stall,
+	input		wire					flush,
 	
 	//累乘加，累乘减指令增加接口
 	input		wire[`DoubleRegBus]	hilo_i,
@@ -24,6 +25,9 @@ module ex_mem(
 	input		wire[`AluOpBus]	ex_aluop,
 	input		wire[`RegBus]		ex_mem_addr,
 	input		wire[`RegBus]		ex_reg2,
+	input		wire[31:0]			ex_excepttype,
+	input		wire					ex_is_in_delayslot,
+	input		wire[`RegBus]		ex_current_inst_address,
 	
 	//送到访存阶段的信息
 	output	reg[`RegAddrBus]	mem_wd,
@@ -35,6 +39,9 @@ module ex_mem(
 	output	reg[`AluOpBus]		mem_aluop,
 	output	reg[`RegBus]		mem_mem_addr,
 	output	reg[`RegBus]		mem_reg2,
+	output	reg[31:0]			mem_excepttype,
+	output	reg					mem_is_in_delayslot,
+	output	reg[`RegBus]		mem_current_inst_address,
 	
 	//CP0相关
 	input		wire					ex_cp0_reg_we,
@@ -74,7 +81,12 @@ always	@	(posedge	clk)	begin
 		mem_cp0_reg_we	<= `WriteDisable;
 		mem_cp0_reg_waddr	<= 5'b00000;
 		mem_cp0_reg_data	<= `ZeroWord;
+		mem_excepttype		<= `ZeroWord;
+		mem_is_in_delayslot	<= `NotInDelaySlot;
+		mem_current_inst_address	<= `ZeroWord;
 	end	else
+	if(flush == 1'b1)	begin
+		
 	if(stall[3] == `NoStop)begin
 		mem_wd		<=	ex_wd;
 		mem_wreg		<=	ex_wreg;

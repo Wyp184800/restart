@@ -113,8 +113,8 @@ reg[`DoubleRegBus]	mulres;						//保存乘法结果，宽度64
 reg				stallreq_for_madd_msub;
 reg				stallreq_for_div;					//由除法运算导致流水线暂停
 
-reg				trapassert							//是否有自陷异常
-reg				ovassert								//是否有溢出异常
+reg				trapassert;							//是否有自陷异常
+reg				ovassert;								//是否有溢出异常
 
 //aluop_o会传递到访存阶段，解释将利用其确定加载，存储类型
 assign	aluop_o = aluop_i;
@@ -130,6 +130,9 @@ assign	excepttype_o	={excepttype_i[31:12], ovassert, trapassert, excepttype_i[9:
 
 //当前处于执行阶段指令的地址
 assign	current_inst_address_o	= current_inst_address_i;
+
+//当前指令是否在延时槽中
+assign	is_in_delayslot_o	= is_in_delayslot_i;
 
 /*第一段，根据aluop_i指示的运算子类型进行运算*/
 
@@ -187,8 +190,10 @@ always 	@	(*)	begin
 	if(((aluop_i == `EXE_ADD_OP) || (aluop_i == `EXE_ADDI_OP) ||
 		(aluop_i == `EXE_SUB_OP)) && (ov_sum == 1'b1))	begin
 			wreg_o <= `WriteDisable;
+			ovassert <= 1'b1;
 	end	else	begin
 		wreg_o <= wreg_i;
+		ovassert <= 1'b0;
 	end
 	case	(alusel_i)
 		`EXE_RES_LOGIC:begin
@@ -627,6 +632,16 @@ always	@	(*)	begin
 					trapassert	<= `TrapAssert;
 				end
 			end
-			`EXE_TNE_OP, `EXE_
+			`EXE_TNE_OP, `EXE_TNEI_OP:begin
+				if(reg1_i != reg2_i)	begin
+					trapassert	<= `TrapAssert;
+				end
+			end
+			default:begin
+				trapassert	<= `TrapNotAssert;
+			end
+		endcase
+	end
+end
 
 endmodule
