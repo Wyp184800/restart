@@ -185,6 +185,7 @@ always	@	(*)	begin
 				data_o	<= config_o;
 			end
 			default:begin
+				data_o	<= `ZeroWord;
 			end
 		endcase
 	end		//if

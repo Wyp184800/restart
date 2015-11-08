@@ -3,7 +3,9 @@
 module mem_wb(
 	input		wire					clk,
 	input		wire					rst,
+	
 	input		wire[5:0]			stall,
+	input		wire					flush,
 	
 	//从执行阶段传递过来的信息
 	input		wire[`RegAddrBus]	mem_wd,
@@ -35,46 +37,59 @@ module mem_wb(
 	output	reg[`RegBus]		wb_cp0_reg_data
 );
 
-always	@	(posedge	clk)	begin
-	if(rst == `RstEnable)	begin
-		wb_wd		<=	`NOPRegAddr;
-		wb_wreg	<=	`WriteDisable;
-		wb_wdata	<=	`ZeroWord;
-		wb_hi		<= `ZeroWord;
-		wb_lo		<= `ZeroWord;
-		wb_whilo	<= `WriteDisable;
-		wb_LLbit_we	<= 1'b0;
-		wb_LLbit_value	<= 1'b0;
-		wb_cp0_reg_we	<= `WriteDisable;
+always	@	(posedge clk)	begin
+	if(rst == `RstEnable) begin
+		wb_wd 	<= `NOPRegAddr;
+		wb_wreg 	<= `WriteDisable;
+		wb_wdata <= `ZeroWord;	
+		wb_hi 	<= `ZeroWord;
+		wb_lo 	<= `ZeroWord;
+		wb_whilo <= `WriteDisable;
+		wb_LLbit_we 	<= 1'b0;
+		wb_LLbit_value <= 1'b0;		
+		wb_cp0_reg_we 	<= `WriteDisable;
 		wb_cp0_reg_waddr	<= 5'b00000;
-		wb_cp0_reg_data	<= `ZeroWord;
-	end	else	
+		wb_cp0_reg_data	<= `ZeroWord;			
+	end 	else 
+	if(flush == 1'b1)	begin
+		wb_wd 	<= `NOPRegAddr;
+		wb_wreg 	<= `WriteDisable;
+		wb_wdata <= `ZeroWord;
+		wb_hi 	<= `ZeroWord;
+		wb_lo 	<= `ZeroWord;
+		wb_whilo <= `WriteDisable;
+		wb_LLbit_we 	<= 1'b0;
+		wb_LLbit_value <= 1'b0;	
+		wb_cp0_reg_we 	<= `WriteDisable;
+		wb_cp0_reg_waddr	<= 5'b00000;
+		wb_cp0_reg_data	<= `ZeroWord;				  				  	  	
+	end 	else 
 	if(stall[4] == `Stop && stall[5] == `NoStop)	begin
-		wb_wd		<=	`NOPRegAddr;
-		wb_wreg	<=	`WriteDisable;
-		wb_wdata	<=	`ZeroWord;
-		wb_hi		<= `ZeroWord;
-		wb_lo		<= `ZeroWord;
-		wb_whilo	<= `WriteDisable;
-		wb_LLbit_we	<= 1'b0;
-		wb_LLbit_value	<= 1'b0;
-		wb_cp0_reg_we	<= `WriteDisable;
-		wb_cp0_reg_waddr	<= 5'b00000;
-		wb_cp0_reg_data	<= `ZeroWord;
-	end	else
+		wb_wd 	<= `NOPRegAddr;
+		wb_wreg 	<= `WriteDisable;
+		wb_wdata <= `ZeroWord;
+		wb_hi 	<= `ZeroWord;
+		wb_lo 	<= `ZeroWord;
+		wb_whilo <= `WriteDisable;	
+		wb_LLbit_we 	<= 1'b0;
+		wb_LLbit_value <= 1'b0;	
+		wb_cp0_reg_we 	<= `WriteDisable;
+		wb_cp0_reg_waddr 	<= 5'b00000;
+		wb_cp0_reg_data 	<= `ZeroWord;					  		  	  	  
+	end 	else 
 	if(stall[4] == `NoStop)	begin
-		wb_wd		<=	mem_wd;
-		wb_wreg	<=	mem_wreg;
-		wb_wdata	<=	mem_wdata;
-		wb_hi		<= mem_hi;
-		wb_lo		<= mem_lo;
-		wb_whilo	<= mem_whilo;
-		wb_LLbit_we	<= mem_LLbit_we;
-		wb_LLbit_value	<= mem_LLbit_value;
-		wb_cp0_reg_we	<= mem_cp0_reg_we;
-		wb_cp0_reg_waddr	<= mem_cp0_reg_waddr;
-		wb_cp0_reg_data	<= mem_cp0_reg_data;
-	end
-end
+		wb_wd 	<= mem_wd;
+		wb_wreg 	<= mem_wreg;
+		wb_wdata <= mem_wdata;
+		wb_hi 	<= mem_hi;
+		wb_lo 	<= mem_lo;
+		wb_whilo <= mem_whilo;		
+		wb_LLbit_we 	<= mem_LLbit_we;
+		wb_LLbit_value <= mem_LLbit_value;		
+		wb_cp0_reg_we 	<= mem_cp0_reg_we;
+		wb_cp0_reg_waddr 	<= mem_cp0_reg_waddr;
+		wb_cp0_reg_data 	<= mem_cp0_reg_data;			  		
+	end    //if
+end      //always
 
 endmodule
