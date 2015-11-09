@@ -36,6 +36,8 @@ wire[`RegAddrBus]		id_wd_o;
 wire 						id_is_in_delayslot_o;
 wire[`RegBus] 			id_link_address_o;	
 wire[`RegBus]			id_inst_o;
+wire[31:0]				id_excepttype;
+wire[`RegBus]			id_current_inst_addr_o;
 
 //连接id_ex与ex模块的变量
 wire[`AluOpBus]		ex_aluop_i;
@@ -47,6 +49,8 @@ wire[`RegAddrBus]		ex_wd_i;
 wire 						ex_is_in_delayslot_i;	
 wire[`RegBus] 			ex_link_address_i;	
 wire[`RegBus]			ex_inst_i;
+wire[31:0]				ex_excepttype_i;
+wire[`RegBus]			ex_current_inst_addr_i;
 
 //连接ex与ex_mem模块的变量
 wire						ex_wreg_o;
@@ -61,7 +65,10 @@ wire[`RegBus] 			ex_reg1_o;
 wire[`RegBus] 			ex_reg2_o;	
 wire 						ex_cp0_reg_we_o;
 wire[4:0] 				ex_cp0_reg_waddr_o;
-wire[`RegBus] 			ex_cp0_reg_data_o; 	
+wire[`RegBus] 			ex_cp0_reg_data_o; 
+wire[31:0]				ex_excepttype_o;
+wire[`RegBus]			ex_current_inst_addr_o;
+wire						ex_is_in_delayslot_o;
 
 //连接ex_mem与mem模块的变量
 wire						mem_wreg_i;
@@ -77,6 +84,9 @@ wire[`RegBus] 			mem_reg2_i;
 wire 						mem_cp0_reg_we_i;
 wire[4:0] 				mem_cp0_reg_waddr_i;
 wire[`RegBus] 			mem_cp0_reg_data_i;	
+wire[31:0]				mem_excepttype_i;
+wire[`RegBus]			mem_current_inst_addr_i;
+wire						mem_is_in_delayslot_i;
 
 //连接mem与mem_wb模块的变量
 wire						mem_wreg_o;
@@ -90,6 +100,9 @@ wire			 			mem_LLbit_we_o;
 wire 						mem_cp0_reg_we_o;
 wire[4:0] 				mem_cp0_reg_waddr_o;
 wire[`RegBus]			mem_cp0_reg_data_o;		
+wire[31:0]				mem_excepttype_o;
+wire						mem_is_in_delayslot_o;
+wire[`RegBus]			mem_current_inst_addr_o
 
 //连接mem_wb与wb模块的变量
 wire						wb_wreg_i;
@@ -103,6 +116,9 @@ wire 						wb_LLbit_we_i;
 wire 						wb_cp0_reg_we_i;
 wire[4:0] 				wb_cp0_reg_waddr_i;
 wire[`RegBus] 			wb_cp0_reg_data_i;
+wire[31:0]				wb_excepttype_i;
+wire						wb_is_in_delayslot_i;
+wire[`RegBus]			wb_current_inst_addr_i;
 
 //连接id与Regfile模块的变量
 wire						reg1_read;
@@ -145,6 +161,18 @@ wire 						LLbit_o;
 
 wire[`RegBus] 			cp0_data_o;
 wire[4:0] 				cp0_raddr_i;
+
+wire						flush;
+wire[`RegBus]			new_pc;
+
+wire[`RegBus]			cp0_count;
+wire[`RegBus]			cp0_compare;
+wire[`RegBus]			cp0_status;
+wire[`RegBus]			cp0_epc;
+wire[`RegBus]			cp0_config;
+wire[`RegBus]			cp0_prid;
+
+wire[`RegBus]			lastest_epc;
 
 //pc_reg例化
 pc_reg	pc_reg0(
