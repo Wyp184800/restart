@@ -11,7 +11,7 @@ module cp0_reg(
 	
 	input		wire[5:0]		int_i,
 	input		wire[31:0]		excepttype_i,
-	input		wire[`RegBus]	currengt_inst_addr_i,
+	input		wire[`RegBus]	currengt_inst_address_i,
 	input		wire				is_in_delayslot_i,
 	
 	output	reg[`RegBus]	data_o,
