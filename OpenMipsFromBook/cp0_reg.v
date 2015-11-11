@@ -11,7 +11,7 @@ module cp0_reg(
 	
 	input		wire[5:0]		int_i,
 	input		wire[31:0]		excepttype_i,
-	input		wire[`RegBus]	currengt_inst_address_i,
+	input		wire[`RegBus]	current_inst_address_i,
 	input		wire				is_in_delayslot_i,
 	
 	output	reg[`RegBus]	data_o,
@@ -86,10 +86,10 @@ always	@	(posedge	clk)	begin
 		case(excepttype_i)
 			32'h00000001:begin
 				if(is_in_delayslot_i == `InDelaySlot)	begin
-					epc_o	<= currengt_inst_addr_i - 4;
+					epc_o	<= current_inst_address_i - 4;
 					cause_o[31]	<= 1'b1;
 				end	else	begin
-					epc_o	<= currengt_inst_addr_i;
+					epc_o	<= current_inst_address_i;
 					cause_o[31]	<= 1'b0;
 				end
 				status_o[1]	<= 1'b1;
@@ -98,10 +98,10 @@ always	@	(posedge	clk)	begin
 			32'h00000008:begin
 				if(status_o[1] == 1'b0)	begin
 					if(is_in_delayslot_i == `InDelaySlot)	begin
-						epc_o	<=	currengt_inst_addr_i - 4;
+						epc_o	<=	current_inst_address_i - 4;
 						cause_o[31]	<= 1'b1;
 					end	else	begin
-						epc_o	<= currengt_inst_addr_i;
+						epc_o	<= current_inst_address_i;
 						cause_o[30]	<= 1'b0;
 					end
 				end
@@ -111,10 +111,10 @@ always	@	(posedge	clk)	begin
 			32'h0000000a:begin
 				if(status_o[1] <= 1'b0)	begin
 					if(is_in_delayslot_i	== `InDelaySlot)	begin
-						epc_o	<= currengt_inst_addr_i - 4;
+						epc_o	<= current_inst_address_i - 4;
 						cause_o[31]	<= 1'b1;
 					end	else	begin
-						epc_o	<= currengt_inst_addr_i;
+						epc_o	<= current_inst_address_i;
 						cause_o[31]	<= 1'b0;
 					end
 				end
@@ -124,10 +124,10 @@ always	@	(posedge	clk)	begin
 			32'h0000000d:begin
 				if(status_o[1]	== 1'b0)	begin
 					if(is_in_delayslot_i	== `InDelaySlot)	begin
-						epc_o	<= currengt_inst_addr_i - 4;
+						epc_o	<= current_inst_address_i - 4;
 						cause_o[31]	<= 1'b1;
 					end	else	begin
-						epc_o	<= currengt_inst_addr_i;
+						epc_o	<= current_inst_address_i;
 						cause_o[31]	<= 1'b0;
 					end
 				end
@@ -137,10 +137,10 @@ always	@	(posedge	clk)	begin
 			32'h0000000c:begin
 				if(status_o[1]	== 1'b0)	begin
 					if(is_in_delayslot_i == `InDelaySlot)	begin
-						epc_o	<= currengt_inst_addr_i - 4;
+						epc_o	<= current_inst_address_i - 4;
 						cause_o[31]	<= 1'b1;
 					end	else	begin
-						epc_o	<= currengt_inst_addr_i;
+						epc_o	<= current_inst_address_i;
 						cause_o[31]	<= 1'b0;
 					end
 				end

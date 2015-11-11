@@ -29,8 +29,8 @@ module mem_wb(
 	
 	//CP0相关
 	input		wire					mem_cp0_reg_we,
-	input		wire					mem_cp0_reg_waddr,
-	input		wire					mem_cp0_reg_data,
+	input		wire[4:0]			mem_cp0_reg_waddr,
+	input		wire[`RegBus]		mem_cp0_reg_data,
 	
 	output	reg					wb_cp0_reg_we,
 	output	reg[4:0]				wb_cp0_reg_waddr,

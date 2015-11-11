@@ -36,8 +36,8 @@ wire[`RegAddrBus]		id_wd_o;
 wire 						id_is_in_delayslot_o;
 wire[`RegBus] 			id_link_address_o;	
 wire[`RegBus]			id_inst_o;
-wire[31:0]				id_excepttype;
-wire[`RegBus]			id_current_inst_addr_o;
+wire[31:0]				id_excepttype_o;
+wire[`RegBus]			id_current_inst_address_o;
 
 //连接id_ex与ex模块的变量
 wire[`AluOpBus]		ex_aluop_i;
@@ -50,7 +50,7 @@ wire 						ex_is_in_delayslot_i;
 wire[`RegBus] 			ex_link_address_i;	
 wire[`RegBus]			ex_inst_i;
 wire[31:0]				ex_excepttype_i;
-wire[`RegBus]			ex_current_inst_addr_i;
+wire[`RegBus]			ex_current_inst_address_i;
 
 //连接ex与ex_mem模块的变量
 wire						ex_wreg_o;
@@ -67,7 +67,7 @@ wire 						ex_cp0_reg_we_o;
 wire[4:0] 				ex_cp0_reg_waddr_o;
 wire[`RegBus] 			ex_cp0_reg_data_o; 
 wire[31:0]				ex_excepttype_o;
-wire[`RegBus]			ex_current_inst_addr_o;
+wire[`RegBus]			ex_current_inst_address_o;
 wire						ex_is_in_delayslot_o;
 
 //连接ex_mem与mem模块的变量
@@ -85,7 +85,7 @@ wire 						mem_cp0_reg_we_i;
 wire[4:0] 				mem_cp0_reg_waddr_i;
 wire[`RegBus] 			mem_cp0_reg_data_i;	
 wire[31:0]				mem_excepttype_i;
-wire[`RegBus]			mem_current_inst_addr_i;
+wire[`RegBus]			mem_current_inst_address_i;
 wire						mem_is_in_delayslot_i;
 
 //连接mem与mem_wb模块的变量
@@ -102,7 +102,7 @@ wire[4:0] 				mem_cp0_reg_waddr_o;
 wire[`RegBus]			mem_cp0_reg_data_o;		
 wire[31:0]				mem_excepttype_o;
 wire						mem_is_in_delayslot_o;
-wire[`RegBus]			mem_current_inst_addr_o;
+wire[`RegBus]			mem_current_inst_address_o;
 
 //连接mem_wb与wb模块的变量
 wire						wb_wreg_i;
@@ -118,7 +118,7 @@ wire[4:0] 				wb_cp0_reg_waddr_i;
 wire[`RegBus] 			wb_cp0_reg_data_i;
 wire[31:0]				wb_excepttype_i;
 wire						wb_is_in_delayslot_i;
-wire[`RegBus]			wb_current_inst_addr_i;
+wire[`RegBus]			wb_current_inst_address_i;
 
 //连接id与Regfile模块的变量
 wire						reg1_read;
@@ -168,6 +168,7 @@ wire[`RegBus]			new_pc;
 wire[`RegBus]			cp0_count;
 wire[`RegBus]			cp0_compare;
 wire[`RegBus]			cp0_status;
+wire[`RegBus]			cp0_cause;
 wire[`RegBus]			cp0_epc;
 wire[`RegBus]			cp0_config;
 wire[`RegBus]			cp0_prid;
@@ -374,63 +375,71 @@ ex_mem	ex_mem0(
 
 //mem模块例化
 mem mem0(
-		.rst(rst),
+	.rst(rst),
 	
-		//来自ex_mem模块的信息
-		.wd_i(mem_wd_i),
-		.wreg_i(mem_wreg_i),
-		.wdata_i(mem_wdata_i),
-		.hi_i(mem_hi_i),
-		.lo_i(mem_lo_i),
-		.whilo_i(mem_whilo_i),		
+	//来自ex_mem模块的信息
+	.wd_i(mem_wd_i),
+	.wreg_i(mem_wreg_i),
+	.wdata_i(mem_wdata_i),
+	.hi_i(mem_hi_i),
+	.lo_i(mem_lo_i),
+	.whilo_i(mem_whilo_i),		
 
-		.aluop_i(mem_aluop_i),
-		.mem_addr_i(mem_mem_addr_i),
-		.reg2_i(mem_reg2_i),
+	.aluop_i(mem_aluop_i),
+	.mem_addr_i(mem_mem_addr_i),
+	.reg2_i(mem_reg2_i),
 	
-		.wb_LLbit_we_i(wb_LLbit_we_i),
-		.wb_LLbit_value_i(wb_LLbit_value_i),
+	.wb_LLbit_we_i(wb_LLbit_we_i),
+	.wb_LLbit_value_i(wb_LLbit_value_i),
 
-		.cp0_reg_we_i(mem_cp0_reg_we_i),
-		.cp0_reg_waddr_i(mem_cp0_reg_waddr_i),
-		.cp0_reg_data_i(mem_cp0_reg_data_i),
+	.cp0_reg_we_i(mem_cp0_reg_we_i),
+	.cp0_reg_waddr_i(mem_cp0_reg_waddr_i),
+	.cp0_reg_data_i(mem_cp0_reg_data_i),
 		
-		.excepttype_i(mem_excepttype_i),
-		.is_in_delayslot_i(mem_is_in_delayslot_i),
-		.current_inst_address_i(mem_current_inst_address_i),
+	.cp0_status_i(cp0_status),
+	.cp0_cause_i(cp0_cause),
+	.cp0_epc_i(cp0_epc),
 		
-		//来自Dcache的信息
-		.mem_data_i(ram_data_i),
+	.excepttype_i(mem_excepttype_i),
+	.is_in_delayslot_i(mem_is_in_delayslot_i),
+	.current_inst_address_i(mem_current_inst_address_i),
+	
+	.wb_cp0_reg_we(wb_cp0_reg_we_i),
+	.wb_cp0_reg_waddr(wb_cp0_reg_waddr_i),
+	.wb_cp0_reg_data(wb_cp0_reg_data_i),
 		
-		//
-		.LLbit_i(LLbit_o),
+	//来自Dcache的信息
+	.mem_data_i(ram_data_i),
+		
+	//
+	.LLbit_i(LLbit_o),
 	  
-		//送到mem_wb模块的信息
-		.wd_o(mem_wd_o),
-		.wreg_o(mem_wreg_o),
-		.wdata_o(mem_wdata_o),
-		.hi_o(mem_hi_o),
-		.lo_o(mem_lo_o),
-		.whilo_o(mem_whilo_o),
+	//送到mem_wb模块的信息
+	.wd_o(mem_wd_o),
+	.wreg_o(mem_wreg_o),
+	.wdata_o(mem_wdata_o),
+	.hi_o(mem_hi_o),
+	.lo_o(mem_lo_o),
+	.whilo_o(mem_whilo_o),
+	
+	.LLbit_we_o(mem_LLbit_we_o),
+	.LLbit_value_o(mem_LLbit_value_o),
 		
-		.LLbit_we_o(mem_LLbit_we_o),
-		.LLbit_value_o(mem_LLbit_value_o),
+	.cp0_reg_we_o(mem_cp0_reg_we_o),
+	.cp0_reg_waddr_o(mem_cp0_reg_waddr_o),
+	.cp0_reg_data_o(mem_cp0_reg_data_o),
 		
-		.cp0_reg_we_o(mem_cp0_reg_we_o),
-		.cp0_reg_waddr_o(mem_cp0_reg_waddr_o),
-		.cp0_reg_data_o(mem_cp0_reg_data_o),
-		
-		//送到Dcache的信息
-		.mem_addr_o(ram_addr_o),
-		.mem_we_o(ram_we_o),
-		.mem_sel_o(ram_sel_o),
-		.mem_data_o(ram_data_o),
-		.mem_ce_o(ram_ce_o),
+	//送到Dcache的信息
+	.mem_addr_o(ram_addr_o),
+	.mem_we_o(ram_we_o),
+	.mem_sel_o(ram_sel_o),
+	.mem_data_o(ram_data_o),
+	.mem_ce_o(ram_ce_o),
 
-		.excepttype_o(mem_excepttype_o),
-		.cp0_epc_o(latest_epc),
-		.is_in_delayslot_o(mem_is_in_delayslot_o),
-		.current_inst_address_o(mem_current_inst_address_o)
+	.excepttype_o(mem_excepttype_o),
+	.cp0_epc_o(lastest_epc),
+	.is_in_delayslot_o(mem_is_in_delayslot_o),
+	.current_inst_address_o(mem_current_inst_address_o)
 );
 
 //mem_wb模块例化
