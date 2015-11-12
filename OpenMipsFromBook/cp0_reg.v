@@ -178,7 +178,7 @@ always	@	(*)	begin
 			`CP0_REG_EPC:begin
 				data_o	<= epc_o;
 			end
-			`CP0_REG_PRid:begin
+			`CP0_REG_PRID:begin
 				data_o	<= prid_o;
 			end
 			`CP0_REG_CONFIG:begin
