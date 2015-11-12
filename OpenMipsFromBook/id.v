@@ -376,7 +376,7 @@ always	@	(*)	begin
 							end
 							`EXE_TEQ:begin
 								wreg_o		<= `WriteDisable;
-								aluop_o		<= `EXE_SYSCALL_OP;
+								aluop_o		<= `EXE_TEQ_OP;
 								alusel_o		<= `EXE_RES_NOP;
 								reg1_read_o	<= 1'b0;
 								reg2_read_o	<= 1'b0;

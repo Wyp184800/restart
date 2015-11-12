@@ -449,10 +449,10 @@ always @ (*) begin
 			if(excepttype_i[10] ==1'b1) begin
 				excepttype_o 	<= 32'h0000000d;        //trap
 			end else 
-			if(excepttype_i[11] == 1'b1) begin  //ov
+			if(excepttype_i[11] == 1'b1) begin  		//ov
 				excepttype_o	<= 32'h0000000c;
 			end else 
-			if(excepttype_i[12] == 1'b1) begin  //����ָ��
+			if(excepttype_i[12] == 1'b1) begin  		//eret
 				excepttype_o 	<= 32'h0000000e;
 			end
 		end				
