@@ -1,30 +1,30 @@
 /*全局宏定义*/
-
-`define	RstEnable		1'b1					//复位信号有效
-`define	RstDisable		1'b0					//复位信号无效
-`define	ZeroWord			32'h00000000		//32位的数值0
-`define	WriteEnable		1'b1					//使能写
-`define	WriteDisable	1'b0					//禁止写
-`define	ReadEnable		1'b1					//使能读
-`define	ReadDisable		1'b0					//禁止读
-`define	AluOpBus			7:0					//译码阶段的输出aluop_o的宽度
-`define	AluSelBus		2:0					//译码阶段的输出alusel_o的宽度
-`define	InstValid		1'b1					//指令有效
-`define 	InstInvalid		1'b0					//指令无效
-`define 	True_v			1'b1					//逻辑真
-`define 	False_v			1'b0					//逻辑假
-`define 	ChipEnable		1'b1					//芯片使能
-`define 	ChipDisable		1'b0					//芯片禁止
-`define	Stop				1'b1					//流水线暂停
-`define	NoStop			1'b0					//流水线继续
-`define	InDelaySlot		1'b1					//在延迟槽中
-`define	NotInDelaySlot	1'b0					//不在延迟槽中
-`define	Branch			1'b1					//转移
-`define	NotBranch		1'b0					//不转移	
-`define 	InterruptAssert		1'b1			//中断
-`define 	InterruptNotAssert	1'b0			//不中断
-`define 	TrapAssert 		1'b1
-`define 	TrapNotAssert 	1'b0
+	
+`define RstEnable 1'b1							//复位信号有效
+`define RstDisable 1'b0							//复位信号无效
+`define ZeroWord 32'h00000000					//32位的数值0
+`define WriteEnable 1'b1						//使能写
+`define WriteDisable 1'b0						//禁止写
+`define ReadEnable 1'b1							//使能读
+`define ReadDisable 1'b0						//译码阶段的输出aluop_o的宽度
+`define AluOpBus 7:0								//译码阶段的输出alusel_o的宽度
+`define AluSelBus 2:0							//译码阶段的输出alusel_o的宽度
+`define InstValid 1'b0							//指令有效
+`define InstInvalid 1'b1						//指令无效
+`define Stop 1'b1									//流水线暂停
+`define NoStop 1'b0								//流水线继续
+`define InDelaySlot 1'b1						//在延迟槽中
+`define NotInDelaySlot 1'b0					//不在延迟槽中
+`define Branch 1'b1								//转移
+`define NotBranch 1'b0							//不转移	
+`define InterruptAssert 1'b1					//中断
+`define InterruptNotAssert 1'b0				//不中断
+`define TrapAssert 1'b1
+`define TrapNotAssert 1'b0
+`define True_v 1'b1								//逻辑真
+`define False_v 1'b0								//逻辑假
+`define ChipEnable 1'b1							//芯片使能
+`define ChipDisable 1'b0						//禁止使能
 
 /*与具体指令有关的宏定义*/
 	
