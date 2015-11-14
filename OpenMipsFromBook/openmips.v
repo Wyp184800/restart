@@ -4,25 +4,33 @@ module openmips(
 	input		wire				clk,
 	input		wire				rst,
 	
-	input		wire[`RegBus]	rom_data_i,
-	output	wire[`RegBus]	rom_addr_o,
-	output	wire				rom_ce_o,
-	
-	//连接数据存储器RAM
-	input		wire[`RegBus]	ram_data_i,
-	output	wire[`RegBus]	ram_addr_o,
-	output	wire[`RegBus]	ram_data_o,
-	output	wire				ram_we_o,
-	output	wire[3:0]		ram_sel_o,
-	output	wire				ram_ce_o,
-	
 	input		wire[5:0]		int_i,									
 	
-	output 	wire           timer_int_o
+	output 	wire           timer_int_o,
+	
+	//wishbone总线
+	input		wire[`RegBus]	iwishbone_data_i,
+	input		wire				iwishbone_ack_i,
+	output	wire[`RegBus]	iwishbone_addr_o,
+	output	wire[`RegBus]	iwishbone_data_o,
+	output	wire				iwishbone_we_o,
+	output	wire[3:0]		iwishbone_sel_o,
+	output	wire				iwishbone_stb_o,
+	output	wire				iwishbone_cyc_o,
+
+	input		wire[`RegBus]	dwishbone_data_i,
+	input		wire				dwishbone_ack_i,
+	output	wire[`RegBus]	dwishbone_addr_o,
+	output	wire[`RegBus]	dwishbone_data_o,
+	output	wire				dwishbone_we_o,
+	output	wire[3:0]		dwishbone_sel_o,
+	output	wire				dwishbone_stb_o,
+	output	wire				dwishbone_cyc_o
 );
 
 //连接if_id与id模块的变量
 wire[`InstAddrBus]	pc;
+wire[`InstBus]			inst_i;
 wire[`InstAddrBus]	id_pc_i;
 wire[`InstBus]			id_inst_i;
 
@@ -175,12 +183,21 @@ wire[`RegBus]			cp0_prid;
 
 wire[`RegBus]			lastest_epc;
 
+wire						rom_ce;
+
+wire[31:0]				ram_addr_o;
+wire						ram_we_o;
+wire[3:0]				ram_sel_o;
+wire[`RegBus]			ram_data_o;
+wire						ram_ce_o;
+wire[`RegBus]			ram_data_i;
+
 //pc_reg例化
 pc_reg	pc_reg0(
 	.clk(clk),							.rst(rst),			
 	.pc(pc),								.stall(stall),
 	.flush(flush),						.new_pc(new_pc),
-	.ce(rom_ce_o),						.branch_flag_i(id_branch_flag_o),
+	.ce(rom_ce),						.branch_flag_i(id_branch_flag_o),
 	.branch_target_address_i(branch_target_address)
 );
 

@@ -4,6 +4,8 @@ module ctrl(
 	input		wire				rst,
 	input		wire				stallreq_from_id,		//译码阶段的暂停请求
 	input		wire				stallreq_from_ex,		//执行阶段的暂停请求
+	input		wire				stallreq_from_if,
+	input		wire				stallreq_from_mem,
 	input		wire[31:0]		excepttype_i,
 	input		wire[`RegBus]	cp0_epc_i,
 	
@@ -44,11 +46,19 @@ always	@	(*)	begin
 				end
 		endcase
 	end	else
+	if(stallreq_from_mem == `Stop)	begin
+		stall	<= 6'b011111;
+		flush	<= 1'b0;
+	end	else
 	if(stallreq_from_ex == `Stop)	begin
 		stall	<= 6'b001111;
 		flush	<= 1'b0;
 	end	else
 	if(stallreq_from_id == `Stop)	begin
+		stall	<= 6'b000111;
+		flush	<= 1'b0;
+	end	else
+	if(stallreq_from_if == `Stop)begin
 		stall	<= 6'b000111;
 		flush	<= 1'b0;
 	end	else	begin
