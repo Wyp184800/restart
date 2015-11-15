@@ -560,4 +560,49 @@ cp0_reg cp0_reg0(
 	.timer_int_o(timer_int_o)			
 );
 
+wishbone_bud_if	iwishbone_bus_if(
+	.clk(clk),							.rst(rst),
+	.start_i(stall),					.flush_i(flush),
+	
+	//CPU方向接口
+	.cpu_ce_i(rom_ce),				.cpu_data_i(32'h00000000),
+	.cpu_addr_i(pc),					.cpu_we_i(1'b0),
+	.cpu_sel_i(4'b1111),				.cpu_data_o(inst_i),
+	
+	//Wishbone总线方向接口
+	.wishbone_data_i(iwishbone_data_i),
+	.wishbone_ack_i(iwishbone_ack_i),
+	.wishbone_addr_o(iwishbone_addr_o),
+	.wishbone_data_o(iwishbone_data_o),
+	.wishbone_we_o(iwishbone_we_o),
+	.wishbone_sel_o(iwishbone_sel_o),
+	.wishbone_stb_o(iwishbone_stb_o),
+	.wishbone_cyc_o(iwishbone_cyc_o),
+	
+	.stallreq(stallreq_from_if)
+);
+
+wishbone_bud_if	dwishbone_bus_if(
+	.clk(clk),							.rst(rst),
+	.start_i(stall),					.flush_i(flush),
+	
+	//CPU方向接口
+	.cpu_ce_i(ram_ce_o),				.cpu_data_i(ram_data_o),
+	.cpu_addr_i(ram_addr_o),		.cpu_we_i(ram_we_o),
+	.cpu_sel_i(ram_sel_o),			.cpu_data_o(ram_data_i),
+	
+	//Wishbone总线方向接口
+	.wishbone_data_i(dwishbone_data_i),
+	.wishbone_ack_i(dwishbone_ack_i),
+	.wishbone_addr_o(dwishbone_addr_o),
+	.wishbone_data_o(dwishbone_data_o),
+	.wishbone_we_o(dwishbone_we_o),
+	.wishbone_sel_o(dwishbone_sel_o),
+	.wishbone_stb_o(dwishbone_stb_o),
+	.wishbone_cyc_o(dwishbone_cyc_o),
+	
+	.stallreq(stallreq_from_mem)
+);
+
+
 endmodule
