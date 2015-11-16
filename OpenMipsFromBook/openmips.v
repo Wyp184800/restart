@@ -164,6 +164,8 @@ wire[`RegBus] 			branch_target_address;
 wire[5:0] 				stall;
 wire 						stallreq_from_id;	
 wire 						stallreq_from_ex;
+wire						stallreq_from_if;
+wire						stallreq_from_mem;
 
 wire 						LLbit_o;
 
@@ -201,13 +203,11 @@ pc_reg	pc_reg0(
 	.branch_target_address_i(branch_target_address)
 );
 
-assign rom_addr_o = pc;//指令存储器的输入地址就是pc值
-
 //if_id模块例化
 if_id		if_id0(
 	.clk(clk),	.rst(rst),			.if_pc(pc),
 	.flush(flush),
-	.if_inst(rom_data_i),			.id_pc(id_pc_i),
+	.if_inst(inst_i),					.id_pc(id_pc_i),
 	.id_inst(id_inst_i),				.stall(stall)
 );
 
@@ -560,9 +560,9 @@ cp0_reg cp0_reg0(
 	.timer_int_o(timer_int_o)			
 );
 
-wishbone_bud_if	iwishbone_bus_if(
+wishbone_bus_if	iwishbone_bus_if(
 	.clk(clk),							.rst(rst),
-	.start_i(stall),					.flush_i(flush),
+	.stall_i(stall),					.flush_i(flush),
 	
 	//CPU方向接口
 	.cpu_ce_i(rom_ce),				.cpu_data_i(32'h00000000),
@@ -582,9 +582,9 @@ wishbone_bud_if	iwishbone_bus_if(
 	.stallreq(stallreq_from_if)
 );
 
-wishbone_bud_if	dwishbone_bus_if(
+wishbone_bus_if	dwishbone_bus_if(
 	.clk(clk),							.rst(rst),
-	.start_i(stall),					.flush_i(flush),
+	.stall_i(stall),					.flush_i(flush),
 	
 	//CPU方向接口
 	.cpu_ce_i(ram_ce_o),				.cpu_data_i(ram_data_o),
