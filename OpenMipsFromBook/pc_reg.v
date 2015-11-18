@@ -27,7 +27,7 @@ end
 
 always	@	(posedge clk)	begin
 	if(ce == `ChipDisable)	begin
-		pc <= 32'h00000000;				//指令存储器禁用时，pc为0
+		pc <= 32'h30000000;				//指令存储器禁用时，pc为0
 	end	else	begin
 		if(flush	== 1'b1)	begin			//异常发生，PC转为new_pc
 			pc	<= new_pc;
