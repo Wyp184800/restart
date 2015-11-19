@@ -1,4 +1,3 @@
-`include	"timescale.v"
 `include	"gpio_defines.v"
 module	gpio_top(
 	// WISHBONE Interface
