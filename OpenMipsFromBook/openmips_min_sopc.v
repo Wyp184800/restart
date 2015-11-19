@@ -49,9 +49,9 @@ wire									uart_int;
 wire[30:0]							gpio_i_temp;
 
 //master0
-wire[31:0]							m0_data_i;
-wire[31:0]							m0_data_o;
-wire[31:0]							m0_addr_i;
+wire[31:0]							m0_dat_i;
+wire[31:0]							m0_dat_o;
+wire[31:0]							m0_adr_i;
 wire[3:0]							m0_sel_i;
 wire									m0_we_i;
 wire									m0_cyc_i;
@@ -59,14 +59,14 @@ wire									m0_stb_i;
 wire									m0_ack_o;	
 
 //master0
-wire[31:0]							m0_data_i;
-wire[31:0]							m0_data_o;
-wire[31:0]							m0_addr_i;
-wire[3:0]							m0_sel_i;
-wire									m0_we_i;
-wire									m0_cyc_i;
-wire									m0_stb_i;
-wire									m0_ack_o;		
+wire[31:0]							m1_dat_i;
+wire[31:0]							m1_dat_o;
+wire[31:0]							m1_adr_i;
+wire[3:0]							m1_sel_i;
+wire									m1_we_i;
+wire									m1_cyc_i;
+wire									m1_stb_i;
+wire									m1_ack_o;		
 
 //slave0
 wire[31:0]							s0_data_i;
@@ -79,14 +79,14 @@ wire									s0_stb_o;
 wire									s0_ack_i;	
 
 //slave0
-wire[31:0]							s0_data_i;
-wire[31:0]							s0_data_o;
-wire[31:0]							s0_addr_o;
-wire[3:0]							s0_sel_o;
-wire									s0_we_o;
-wire									s0_cyc_o;
-wire									s0_stb_o;
-wire									s0_ack_i;
+wire[31:0]							s1_data_i;
+wire[31:0]							s1_data_o;
+wire[31:0]							s1_addr_o;
+wire[3:0]							s1_sel_o;
+wire									s1_we_o;
+wire									s1_cyc_o;
+wire									s1_stb_o;
+wire									s1_ack_i;
 
 //slave2
 wire[31:0]							s2_data_i;
@@ -117,21 +117,21 @@ assign	sdr_clk_o	=	clk;
 //例化处理器openmips
 openmips 	openmips0(
 	.clk(clk),						.rst(rst),
-	.iwishbone_data_i(m1_data_o),
+	.iwishbone_data_i(m1_dat_o),
 	.iwishbone_ack_i(m1_ack_o),
-	.iwishbone_addr_o(m1_addr_i),
-	.iwishbone_data_o(m1_data_i),
+	.iwishbone_addr_o(m1_adr_i),
+	.iwishbone_data_o(m1_dat_i),
 	.iwishbone_we_o(m1_we_i),
 	.iwishbone_sel_o(m1_sel_i),
 	.iwishbone_stb_o(m1_stb_i),
 	.iwishbone_cyc_o(m1_cyc_i),
 	
-	.intr_i(intr),
+	.int_i(intr),
 	
-	.dwishbone_data_i(m0_data_o),
+	.dwishbone_data_i(m0_dat_o),
 	.dwishbone_ack_i(m0_ack_o),
-	.dwishbone_addr_o(m0_addr_i),
-	.dwishbone_data_o(m0_data_i),
+	.dwishbone_addr_o(m0_adr_i),
+	.dwishbone_data_o(m0_dat_i),
 	.dwishbone_we_o(m0_we_i),
 	.dwishbone_sel_o(m0_sel_i),
 	.dwishbone_stb_o(m0_stb_i),
@@ -142,10 +142,10 @@ openmips 	openmips0(
 
 gpio_top	gpio_top0(
 	.wb_clk_i(clk),				.wb_rst_i(rst),
-	.wb_cyc_i(s2_cyc_o),			.wb_addr_i(s2_addr_o[7:0]),
-	.wb_data_i(s2_data_o),		.wb_sel_i(s2_sel_o),
+	.wb_cyc_i(s2_cyc_o),			.wb_adr_i(s2_addr_o[7:0]),
+	.wb_dat_i(s2_data_o),		.wb_sel_i(s2_sel_o),
 	.wb_we_i(s2_wb_o),			.wb_stb_i(s2_stb_o),
-	.wb_data_o(s2_data_i),		.wb_ack_o(s2_ack_i),
+	.wb_dat_o(s2_data_i),		.wb_ack_o(s2_ack_i),
 	.wb_err_o(),					.wb_inta_o(gpio_int),
 	.ext_pad_i(gpio_i_temp),	.ext_pad_o(gpio_o),
 	.ext_padoe_o()

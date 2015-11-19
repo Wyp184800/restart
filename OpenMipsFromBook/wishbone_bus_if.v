@@ -125,6 +125,8 @@ always	@	(*)	begin
 				cpu_data_o	<= rd_buf;
 			end
 			default:begin
+				stallreq		<= `NoStop;
+				cpu_data_o	<= `ZeroWord;
 			end
 		endcase
 	end
