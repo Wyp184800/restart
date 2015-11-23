@@ -49,9 +49,9 @@ wire									uart_int;
 wire[30:0]							gpio_i_temp;
 
 //master0
-wire[31:0]							m0_dat_i;
-wire[31:0]							m0_dat_o;
-wire[31:0]							m0_adr_i;
+wire[31:0]							m0_data_i;
+wire[31:0]							m0_data_o;
+wire[31:0]							m0_addr_i;
 wire[3:0]							m0_sel_i;
 wire									m0_we_i;
 wire									m0_cyc_i;
@@ -59,9 +59,9 @@ wire									m0_stb_i;
 wire									m0_ack_o;	
 
 //master0
-wire[31:0]							m1_dat_i;
-wire[31:0]							m1_dat_o;
-wire[31:0]							m1_adr_i;
+wire[31:0]							m1_data_i;
+wire[31:0]							m1_data_o;
+wire[31:0]							m1_addr_i;
 wire[3:0]							m1_sel_i;
 wire									m1_we_i;
 wire									m1_cyc_i;

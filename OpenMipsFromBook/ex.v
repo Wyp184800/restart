@@ -467,6 +467,7 @@ always	@	(*)	begin
 				hilo_temp_o	<= {`ZeroWord, `ZeroWord};
 				cnt_o			<= 2'b00;
 				stallreq_for_madd_msub	<= `NoStop;
+				hilo_temp1	<=	{`ZeroWord, `ZeroWord};
 			end
 		endcase
 	end
