@@ -9,11 +9,11 @@ module openmips_min_sopc(
 	output	wire					uart_o,
 	
 	//GPIO
-	input		wire[05:0]			gpio_i,
-	output	wire[30:0]			gpio_o,
+	input		wire[15:0]			gpio_i,
+	output	wire[31:0]			gpio_o,
 	
 	input		wire[7:0]			flash_data_i,
-	output	wire[20:0]			flash_addr_o,
+	output	wire[21:0]			flash_addr_o,
 	output	wire					flash_we_o,
 	output	wire					flash_rst_o,
 	output	wire					flash_oe_o,
@@ -25,28 +25,19 @@ module openmips_min_sopc(
 	output	wire					sdr_ras_n_o,
 	output	wire					sdr_cas_n_o,
 	output	wire					sdr_we_n_o,
-	output	wire[0:0]			sdr_dqm_o,
-	output	wire[0:0]			sdr_ba_o,
-	output	wire[02:0]			sdr_addr_o,
-	inout		wire[05:0]			sdr_dq_io
+	output	wire[1:0]			sdr_dqm_o,
+	output	wire[1:0]			sdr_ba_o,
+	output	wire[12:0]			sdr_addr_o,
+	inout		wire[15:0]			sdr_dq_io
 );
 
 //所有的IO方向都是针对控制器而言。
-wire[`InstAddrBus]				inst_addr;
-wire[`InstBus]						inst;
-wire									rom_ce;
-wire 									mem_we_i;
-wire[`RegBus] 						mem_addr_i;
-wire[`RegBus] 						mem_data_i;
-wire[`RegBus] 						mem_data_o;
-wire[3:0] 							mem_sel_i;  
-wire 									mem_ce_i;
 
-wire[5:0] 							intr;
+wire[7:0] 							intr;
 wire 									timer_int;
 wire									gpio_int;
 wire									uart_int;
-wire[30:0]							gpio_i_temp;
+wire[31:0]							gpio_i_temp;
 
 //master0
 wire[31:0]							m0_data_i;
@@ -111,7 +102,7 @@ wire									s3_ack_i;
 wire									sdram_init_done;
 
 assign	intr	=	{3'b000, gpio_int, uart_int, timer_int};
-assign	gpio_i_temp	=	{05'h0000, sdram_init_done, gpio_i};
+assign	gpio_i_temp	=	{15'h0000, sdram_init_done, gpio_i};
 assign	sdr_clk_o	=	clk;
 
 //例化处理器openmips

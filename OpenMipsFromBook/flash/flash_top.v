@@ -20,9 +20,9 @@ module	flash_top(
 	output	wire				flash_we
 );	
 
-//parameter	aw	=	19;//address-bits
-//parameter	dw	=	32;//data-bits
-//parameter	ws	=	4'h3;//wait-states
+parameter	aw	=	19;//address-bits
+parameter	dw	=	32;//data-bits
+parameter	ws	=	4'h3;//wait-states
 
 
 reg[3:0]		waitstate;

@@ -106,7 +106,7 @@
 // for example: if there is 26 GPIO_IOS, define GPIO_LINES26
 //
 
-`define GPIO_LINES32
+`define GPIO_LINES 32
 
 //
 // Undefine this one if you don't want to remove GPIO block from your design
